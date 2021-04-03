@@ -30,12 +30,6 @@ int main()
 {
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
-    vector<BaseEntity*> BaseEntitys;
-    RectangleShape shape(Vector2f(20, 20));
-    shape.setFillColor(Color::Blue);
-    shape.setPosition(0, 0);
-    BaseEntitys.push_back(new BaseEntity(Sprite(*shape.getTexture()), Vector2f(0, 0), true));
-    
 
     while (window.isOpen())
     {
