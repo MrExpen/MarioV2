@@ -1,24 +1,26 @@
 #include <SFML/Graphics.hpp>
+#include "BaseEntity.h"
+
+using namespace sf;
+
+RenderWindow window(VideoMode(800, 600), "Mario");
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    window.setVerticalSyncEnabled(true);
+
+    
 
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
+        Event e;
+        while (window.pollEvent(e))
         {
-            if (event.type == sf::Event::Closed)
+            if (e.type == Event::Closed)
                 window.close();
         }
 
         window.clear();
-        window.draw(shape);
         window.display();
     }
-
-    return 0;
 }
