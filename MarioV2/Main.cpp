@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <fstream>
 
 #define g 0.15
@@ -17,7 +18,6 @@ RenderWindow window(VideoMode(800, 600), "Mario");
 class BaseEntity
 {
 public:
-    BaseEntity();
     BaseEntity(Vector2f position, bool isKinematic, bool canCollide);
     ~BaseEntity();
     Vector2f position;
@@ -39,6 +39,7 @@ public:
     Player();
     ~Player();
     Player(Vector2f position);
+    Vector2f spawn;
     virtual void Update(double time) override;
     void Jump();
     void TakeDamage();
@@ -50,10 +51,9 @@ private:
 class BaseEnemy : public BaseEntity
 {
 public:
-    BaseEnemy();
     ~BaseEnemy();
     BaseEnemy(Vector2f position, bool isKinematic);
-    virtual void onPlayerEnter(Player player);
+    virtual bool onPlayerEnter(Player& player);
     virtual void Die();
 
 private:
@@ -66,7 +66,7 @@ public:
     Enemy();
     Enemy(Vector2f position);
     virtual void Update(double time) override;
-    virtual void onPlayerEnter(Player player) override;
+    virtual bool onPlayerEnter(Player& player) override;
     virtual void Die() override;
     ~Enemy();
 
@@ -77,9 +77,9 @@ private:
 class Wall :public BaseEntity
 {
 public:
-    Wall();
     ~Wall();
-    Wall(Vector2f position);
+    int spriteindex;
+    Wall(Vector2f position, int spriteindex);
 
 private:
 
@@ -98,7 +98,7 @@ public:
     void Draw(RenderWindow& window);
     void LoadLevel(string levelName);
     Texture texturePlayer;
-    Texture textureWall;
+    vector<Texture*> texturesWall;
     Texture textureEnemy1;
 
 private:
@@ -170,20 +170,23 @@ BaseEntity::BaseEntity(Vector2f position, bool isKinematic, bool canCollide)
     this->isKinematic = isKinematic;
 }
 
-BaseEntity::BaseEntity()
-{
-}
-
 BaseEntity::~BaseEntity()
 {
 }
 
 Game::Game()
 {
-    textureWall.loadFromFile("Wall.png");
+    
+
+   
     texturePlayer.loadFromFile("Mario.png");
     textureEnemy1.loadFromFile("enemy1.png");
-    
+    for (int i = 0; i < 8; i++)
+    {
+        Texture* textureWall = new Texture();
+        textureWall->loadFromFile("Walls.png", IntRect(Vector2i(i * 32, 0), Vector2i(32, 32)));
+        texturesWall.push_back(textureWall);
+    }
     view = View(Vector2f(0, 0), Vector2f(800, 600));
 }
 
@@ -208,10 +211,13 @@ void Game::LoadLevel(string levelName)
             switch (line[i])
             {
             case '#':
-                walls.push_back(new Wall(Vector2f(32 * i, 32 * n)));
+                walls.push_back(new Wall(Vector2f(32 * i, 32 * n), 0));
+                break;
+            case '*':
+                walls.push_back(new Wall(Vector2f(32 * i, 32 * n), 3));
                 break;
             case '@':
-                player.position = Vector2f(32 * i, 32 * n);
+                player = Player(Vector2f(32 * i, 32 * n));
                 break;
             case '!':
                 enemies.push_back(new Enemy(Vector2f(32 * i, 32 * n)));
@@ -266,11 +272,19 @@ void Game::Update(double time)
             }
         }
     }
-    player.Update(time);
     for (auto enemy : enemies)
     {
         enemy->Update(time);
+        float difx = enemy->position.x - player.position.x, dify = enemy->position.y - player.position.y;
+        if (abs(dify) < 32 && difx < 24 && difx > -32)
+        {
+            if (enemy->onPlayerEnter(player))
+            {
+                enemies.erase(find(enemies.begin(), enemies.end(), enemy));
+            }
+        }
     }
+    player.Update(time);
     for (auto wall : walls)
     {
         if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
@@ -281,7 +295,7 @@ void Game::Update(double time)
         if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y > -32 && wall->position.y - player.position.y < 0)
         {
             player.position.y = wall->position.y + 32;
-            player.speedy = -0.00001;
+            player.speedy = -0.00001f;
         }
         for (auto enemy : enemies)
         {
@@ -297,17 +311,21 @@ void Game::Update(double time)
             }
         }
     }
-
 }
 
 void Game::Draw(RenderWindow& window)
 {
-    Sprite spriteWall(textureWall), spritePlayer(texturePlayer), spriteEnemy1(textureEnemy1);
+    Sprite spritePlayer(texturePlayer), spriteEnemy1(textureEnemy1);
     spritePlayer.setScale(2, 2);
-    
+    vector<Sprite> spritesWall;
+    for (auto texture: texturesWall)
+    {
+        spritesWall.push_back(Sprite(*texture));
+    }
+
     for (auto var : walls)
     {
-        var->Draw(spriteWall, window);
+        var->Draw(spritesWall[var->spriteindex], window);
     }
     player.Draw(spritePlayer, window);
     for (auto enemy : enemies)
@@ -338,20 +356,22 @@ void Enemy::Update(double time)
     position.x += speedx * time;
 }
 
-Player::Player()
+Player::Player() : BaseEntity(Vector2f(0, 0), true, true)
 {
-    isKinematic = true;
-    canCollide = true;
     health = 3;
 }
 
 Player::~Player()
 {
 }
-//TODO
+
 void Player::TakeDamage()
 {
-    health--;
+    if (--health == 0)
+    {
+        window.close();
+    }
+    position = spawn;
 }
 
 void Player::Jump()
@@ -364,14 +384,8 @@ void Player::Jump()
 
 Player::Player(Vector2f position) : BaseEntity(position, true, true)
 {
+    spawn = position;
     health = 3;
-}
-
-Enemy::Enemy()
-{
-    isKinematic = true;
-    canCollide = true;
-    speedx = 1;
 }
 
 Enemy::Enemy(Vector2f position) : BaseEnemy(position, true)
@@ -382,17 +396,24 @@ Enemy::Enemy(Vector2f position) : BaseEnemy(position, true)
 Enemy::~Enemy()
 {
 }
-//TODO
-void BaseEnemy::onPlayerEnter(Player player)
-{
 
+bool BaseEnemy::onPlayerEnter(Player& player)
+{
+    return false;
 }
 
-void Enemy::onPlayerEnter(Player player)
+bool Enemy::onPlayerEnter(Player &player)
 {
-    if (player.speedy < 0)
+    if (player.speedy < -0.2)
     {
         this->Die();
+        player.speedy = 2;
+        return true;
+    }
+    else
+    {
+        player.TakeDamage();
+        return false;
     }
 }
 
@@ -400,20 +421,12 @@ void BaseEnemy::Die()
 {
 }
 
-Wall::Wall()
+Wall::Wall(Vector2f position, int spriteindex) : BaseEntity(position, false, true)
 {
-}
-
-Wall::Wall(Vector2f position) : BaseEntity(position, false, true)
-{
-
+    this->spriteindex = spriteindex;
 }
 
 Wall::~Wall()
-{
-}
-
-BaseEnemy::BaseEnemy()
 {
 }
 
