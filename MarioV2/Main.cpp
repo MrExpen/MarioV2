@@ -177,15 +177,16 @@ void Game::Update(double time)
     player.Update(time);
     for (auto wall : walls)
     {
-        if (wall->position.x - player.position.x < 32 && wall->position.x - player.position.x > 0 && wall->position.y - player.position.y < 32)
+        if (wall->position.x - player.position.x < 32 && wall->position.x - player.position.x >0 && abs(wall->position.y - player.position.y) < 30)
         {
             player.position.x = wall->position.x - 32;
         }
-        /*else if(wall->position.x - player.position.x > -32 && wall->position.x - player.position.x < 0 && wall->position.y - player.position.y < 32)
+        if (wall->position.x - player.position.x > -32 && wall->position.x - player.position.x <0 && abs(wall->position.y - player.position.y) < 30)
         {
             player.position.x = wall->position.x + 32;
-        }*/
-        if (abs(wall->position.x - player.position.x) < 32 && wall->position.y - player.position.y < 32)
+        }
+
+        if ((abs(wall->position.x - player.position.x) < 20) && wall->position.y - player.position.y < 32)
         {
             player.position.y = wall->position.y - 32;
             player.speedy = 0;
