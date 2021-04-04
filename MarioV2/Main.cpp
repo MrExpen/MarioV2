@@ -49,6 +49,8 @@ class Enemy : public BaseEntity
 {
 public:
     Enemy();
+    Enemy(Vector2f position);
+    virtual void Update(double time) override;
     ~Enemy();
 
 private:
@@ -72,6 +74,7 @@ public:
     Game();
     ~Game();
     Player player;
+    Enemy enemy1;
     vector<Wall*> walls;
     View view;
     void Update(double time);
@@ -79,6 +82,7 @@ public:
     void LoadLevel(string levelName);
     Texture texturePlayer;
     Texture textureWall;
+    Texture textureEnemy1;
 
 private:
 
@@ -89,8 +93,9 @@ int main()
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
     Game game;
+    Color color(117, 255, 255);
     game.LoadLevel("1lvl.txt");
-
+    game.enemy1.speedx = 1;
     while (window.isOpen())
     {
         Event e;
@@ -120,11 +125,11 @@ int main()
                 game.player.speedx -= a;
             }
         }
-
+        
         game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
         timeClock.restart();
         
-        window.clear();
+        window.clear(color);
         game.Draw(window);
         window.display();
     }
@@ -165,6 +170,8 @@ Game::Game()
 {
     textureWall.loadFromFile("Wall.png");
     texturePlayer.loadFromFile("Mario.png");
+    textureEnemy1.loadFromFile("enemy1.png");
+    
     view = View(Vector2f(0, 0), Vector2f(800, 600));
 }
 
@@ -194,6 +201,8 @@ void Game::LoadLevel(string levelName)
             case '@':
                 player.position = Vector2f(32 * i, 32 * n);
                 break;
+            case '!':
+                enemy1.position = Vector2f(32 * i, 32 * n);
             }
         }
         n++;
@@ -223,8 +232,27 @@ void Game::Update(double time)
                 player.position.x = wall->position.x + 32;
             }
         }
+        if (enemy1.speedx > 0 && abs(wall->position.y - enemy1.position.y) < 32)
+        {
+            float posx = enemy1.position.x + enemy1.speedx * time;
+            if (wall->position.x - posx < 32 && wall->position.x - posx > 0)
+            {
+                enemy1.speedx = -1;
+                enemy1.position.x = wall->position.x - 32;
+            }
+        }
+        else if (enemy1.speedx < 0 && abs(wall->position.y - enemy1.position.y) < 32)
+        {
+            float posx = enemy1.position.x + enemy1.speedx * time;
+            if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+            {
+                enemy1.speedx = 1;
+                enemy1.position.x = wall->position.x + 32;
+            }
+        }
     }
     player.Update(time);
+    enemy1.Update(time);
     for (auto wall : walls)
     {
         if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
@@ -237,13 +265,24 @@ void Game::Update(double time)
             player.position.y = wall->position.y + 32;
             player.speedy = -0.00001;
         }
+        if (wall->position.x - enemy1.position.x < 24 && wall->position.x - enemy1.position.x > -32 && wall->position.y - enemy1.position.y > -32 && wall->position.y - enemy1.position.y < 0)
+        {
+            enemy1.position.y = wall->position.y + 32;
+            enemy1.speedy = -0.00001;
+        }
+        if (wall->position.x - enemy1.position.x < 24 && wall->position.x - enemy1.position.x > -32 && wall->position.y - enemy1.position.y < 32 && wall->position.y - enemy1.position.y > 0)
+        {
+            enemy1.position.y = wall->position.y - 32;
+            enemy1.speedy = 0;
+        }
+
     }
 
 }
 
 void Game::Draw(RenderWindow& window)
 {
-    Sprite spriteWall(textureWall), spritePlayer(texturePlayer);
+    Sprite spriteWall(textureWall), spritePlayer(texturePlayer), spriteEnemy1(textureEnemy1);
     spritePlayer.setScale(2, 2);
     
     for (auto var : walls)
@@ -251,7 +290,8 @@ void Game::Draw(RenderWindow& window)
         var->Draw(spriteWall, window);
     }
     player.Draw(spritePlayer, window);
-    view.setCenter(player.position.x+200, 100+player.position.y/2);
+    enemy1.Draw(spriteEnemy1, window);
+    view.setCenter(player.position.x/1.1+100, 100+player.position.y/2);
     window.setView(view);
 }
 
@@ -267,6 +307,12 @@ void Player::Update(double time)
             speedx += Mu;
     }
     else speedx = 0;
+}
+
+void Enemy::Update(double time)
+{
+    BaseEntity::Update(time);
+    position.x += speedx * time;
 }
 
 Player::Player()
@@ -294,6 +340,13 @@ Player::Player(Vector2f position) : BaseEntity(position, true, true)
 
 Enemy::Enemy()
 {
+    isKinematic = true;
+    canCollide = true;
+}
+
+Enemy:: Enemy(Vector2f position) : BaseEntity(position, true, true)
+{
+
 }
 
 Enemy::~Enemy()
