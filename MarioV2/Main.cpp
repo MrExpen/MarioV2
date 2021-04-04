@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <string>
+#include <fstream>
 
 #define g 0.1
 #define TIME_SCALE 8000.0
@@ -71,6 +73,7 @@ public:
     vector<Wall*> walls;
     void Update(double time);
     void Draw(RenderWindow& window);
+    void LoadLevel(string levelName);
     Texture texturePlayer;
     Texture textureWall;
 
@@ -83,7 +86,6 @@ int main()
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
     Game game;
-
 
     while (window.isOpen())
     {
@@ -152,46 +154,76 @@ Game::Game()
     textureWall.loadFromFile("Wall.png");
     texturePlayer.loadFromFile("Mario.png");
 
-    this->player = Player(Vector2f(0, 0));
-    
-    for (int i = 0; i < 20; i++)
-    {
-        walls.push_back(new Wall(Vector2f(i * 32, 128)));
-    }
-    for (int i = 0; i < 5; i++)
-    {
-        walls.push_back(new Wall(Vector2f(128, 64 + 32 + i*32)));
-    }
+    LoadLevel("1lvl.txt");
 }
 
 Game::~Game()
 {
 }
 
+void Game::LoadLevel(string levelName)
+{
+    walls.clear();
+    ifstream fin(levelName);
+
+    int n = 0;
+    for (std::string line; getline(fin, line); )
+    {
+        for (int i = 0; i < line.size(); i++)
+        {
+            switch (line[i])
+            {
+            case '#':
+                walls.push_back(new Wall(Vector2f(32 * i, 32 * n)));
+                break;
+            case '@':
+                player.position = Vector2f(32 * i, 32 * n);
+                break;
+            }
+        }
+        n++;
+    }
+    fin.close();
+}
+
 void Game::Update(double time)
 {
-    for(auto var : walls)
+    for (auto wall : walls)
     {
-        var->Update(time);
+        if (player.speedx > 0 && abs(wall->position.y - player.position.y) < 32)
+        {
+            float posx = player.position.x + player.speedx * time;
+            if (wall->position.x - posx < 24 && wall->position.x - posx > 0)
+            {
+                player.speedx = 0;
+                player.position.x = wall->position.x - 24;
+            }
+        }
+        else if(player.speedx < 0 && abs(wall->position.y - player.position.y) < 32)
+        {
+            float posx = player.position.x + player.speedx * time;
+            if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+            {
+                player.speedx = 0;
+                player.position.x = wall->position.x + 32;
+            }
+        }
     }
     player.Update(time);
     for (auto wall : walls)
     {
-        if (wall->position.x - player.position.x < 32 && wall->position.x - player.position.x >0 && abs(wall->position.y - player.position.y) < 30)
-        {
-            player.position.x = wall->position.x - 32;
-        }
-        if (wall->position.x - player.position.x > -32 && wall->position.x - player.position.x <0 && abs(wall->position.y - player.position.y) < 30)
-        {
-            player.position.x = wall->position.x + 32;
-        }
-
-        if ((abs(wall->position.x - player.position.x) < 20) && wall->position.y - player.position.y < 32)
+        if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
         {
             player.position.y = wall->position.y - 32;
             player.speedy = 0;
         }
+        if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y > -32 && wall->position.y - player.position.y < 0)
+        {
+            player.position.y = wall->position.y + 32;
+            player.speedy = -0.00001;
+        }
     }
+
 }
 
 void Game::Draw(RenderWindow& window)
@@ -214,6 +246,8 @@ void Player::Update(double time)
 
 Player::Player()
 {
+    isKinematic = true;
+    canCollide = true;
 }
 
 Player::~Player()
@@ -224,7 +258,7 @@ void Player::Jump()
 {
     if (speedy == 0)
     {
-        speedy = 3;
+        speedy = 4;
     }
 }
 
