@@ -35,22 +35,39 @@ private:
 class Player : public BaseEntity
 {
 public:
+    int health;
     Player();
     ~Player();
     Player(Vector2f position);
     virtual void Update(double time) override;
     void Jump();
+    void TakeDamage();
 
 private:
 
 };
 
-class Enemy : public BaseEntity
+class BaseEnemy : public BaseEntity
+{
+public:
+    BaseEnemy();
+    ~BaseEnemy();
+    BaseEnemy(Vector2f position, bool isKinematic);
+    virtual void onPlayerEnter(Player player);
+    virtual void Die();
+
+private:
+
+};
+
+class Enemy : public BaseEnemy
 {
 public:
     Enemy();
     Enemy(Vector2f position);
     virtual void Update(double time) override;
+    virtual void onPlayerEnter(Player player) override;
+    virtual void Die() override;
     ~Enemy();
 
 private:
@@ -74,8 +91,8 @@ public:
     Game();
     ~Game();
     Player player;
-    Enemy enemy1;
     vector<Wall*> walls;
+    vector<BaseEnemy*> enemies;
     View view;
     void Update(double time);
     void Draw(RenderWindow& window);
@@ -95,7 +112,6 @@ int main()
     Game game;
     Color color(117, 255, 255);
     game.LoadLevel("1lvl.txt");
-    game.enemy1.speedx = 1;
     while (window.isOpen())
     {
         Event e;
@@ -108,12 +124,8 @@ int main()
         {
             game.player.Jump();
             if (game.player.speedy > 0)
-                game.player.speedy += 0.2;
+                game.player.speedy += 0.093 * (timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
         }
-        //else if (game.player.speedy > 0)
-        //{
-        //    game.player.speedy /= 2.0f;
-        //}
         if (abs(game.player.speedx)<=3)
         {
             if (Keyboard::isKeyPressed(Keyboard::Right))
@@ -202,7 +214,7 @@ void Game::LoadLevel(string levelName)
                 player.position = Vector2f(32 * i, 32 * n);
                 break;
             case '!':
-                enemy1.position = Vector2f(32 * i, 32 * n);
+                enemies.push_back(new Enemy(Vector2f(32 * i, 32 * n)));
             }
         }
         n++;
@@ -232,27 +244,33 @@ void Game::Update(double time)
                 player.position.x = wall->position.x + 32;
             }
         }
-        if (enemy1.speedx > 0 && abs(wall->position.y - enemy1.position.y) < 32)
+        for (auto enemy : enemies)
         {
-            float posx = enemy1.position.x + enemy1.speedx * time;
-            if (wall->position.x - posx < 32 && wall->position.x - posx > 0)
+            if (enemy->speedx > 0 && abs(wall->position.y - enemy->position.y) < 32)
             {
-                enemy1.speedx = -1;
-                enemy1.position.x = wall->position.x - 32;
+                float posx = enemy->position.x + enemy->speedx * time;
+                if (wall->position.x - posx < 32 && wall->position.x - posx > 0)
+                {
+                    enemy->speedx = -1;
+                    enemy->position.x = wall->position.x - 32;
+                }
             }
-        }
-        else if (enemy1.speedx < 0 && abs(wall->position.y - enemy1.position.y) < 32)
-        {
-            float posx = enemy1.position.x + enemy1.speedx * time;
-            if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+            else if (enemy->speedx < 0 && abs(wall->position.y - enemy->position.y) < 32)
             {
-                enemy1.speedx = 1;
-                enemy1.position.x = wall->position.x + 32;
+                float posx = enemy->position.x + enemy->speedx * time;
+                if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+                {
+                    enemy->speedx = 1;
+                    enemy->position.x = wall->position.x + 32;
+                }
             }
         }
     }
     player.Update(time);
-    enemy1.Update(time);
+    for (auto enemy : enemies)
+    {
+        enemy->Update(time);
+    }
     for (auto wall : walls)
     {
         if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
@@ -265,17 +283,19 @@ void Game::Update(double time)
             player.position.y = wall->position.y + 32;
             player.speedy = -0.00001;
         }
-        if (wall->position.x - enemy1.position.x < 24 && wall->position.x - enemy1.position.x > -32 && wall->position.y - enemy1.position.y > -32 && wall->position.y - enemy1.position.y < 0)
+        for (auto enemy : enemies)
         {
-            enemy1.position.y = wall->position.y + 32;
-            enemy1.speedy = -0.00001;
+            if (wall->position.x - enemy->position.x < 32 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y < 32 && wall->position.y - enemy->position.y > 0)
+            {
+                enemy->position.y = wall->position.y - 32;
+                enemy->speedy = 0;
+            }
+            if (wall->position.x - enemy->position.x < 32 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y > -32 && wall->position.y - enemy->position.y < 0)
+            {
+                enemy->position.y = wall->position.y + 32;
+                enemy->speedy = -0.00001;
+            }
         }
-        if (wall->position.x - enemy1.position.x < 24 && wall->position.x - enemy1.position.x > -32 && wall->position.y - enemy1.position.y < 32 && wall->position.y - enemy1.position.y > 0)
-        {
-            enemy1.position.y = wall->position.y - 32;
-            enemy1.speedy = 0;
-        }
-
     }
 
 }
@@ -290,8 +310,11 @@ void Game::Draw(RenderWindow& window)
         var->Draw(spriteWall, window);
     }
     player.Draw(spritePlayer, window);
-    enemy1.Draw(spriteEnemy1, window);
-    view.setCenter(player.position.x/1.1+100, 100+player.position.y/2);
+    for (auto enemy : enemies)
+    {
+        enemy->Draw(spriteEnemy1, window);
+    }
+    view.setCenter(player.position.x/1.1f+100, 100+player.position.y/2.0f);
     window.setView(view);
 }
 
@@ -319,10 +342,16 @@ Player::Player()
 {
     isKinematic = true;
     canCollide = true;
+    health = 3;
 }
 
 Player::~Player()
 {
+}
+//TODO
+void Player::TakeDamage()
+{
+    health--;
 }
 
 void Player::Jump()
@@ -335,21 +364,39 @@ void Player::Jump()
 
 Player::Player(Vector2f position) : BaseEntity(position, true, true)
 {
-
+    health = 3;
 }
 
 Enemy::Enemy()
 {
     isKinematic = true;
     canCollide = true;
+    speedx = 1;
 }
 
-Enemy:: Enemy(Vector2f position) : BaseEntity(position, true, true)
+Enemy::Enemy(Vector2f position) : BaseEnemy(position, true)
+{
+    speedx = 1;
+}
+
+Enemy::~Enemy()
+{
+}
+//TODO
+void BaseEnemy::onPlayerEnter(Player player)
 {
 
 }
 
-Enemy::~Enemy()
+void Enemy::onPlayerEnter(Player player)
+{
+    if (player.speedy < 0)
+    {
+        this->Die();
+    }
+}
+
+void BaseEnemy::Die()
 {
 }
 
@@ -364,4 +411,21 @@ Wall::Wall(Vector2f position) : BaseEntity(position, false, true)
 
 Wall::~Wall()
 {
+}
+
+BaseEnemy::BaseEnemy()
+{
+}
+
+BaseEnemy::BaseEnemy(Vector2f position, bool isKinematic) : BaseEntity(position, isKinematic, true)
+{
+}
+
+BaseEnemy::~BaseEnemy()
+{
+}
+
+void Enemy::Die()
+{
+
 }
