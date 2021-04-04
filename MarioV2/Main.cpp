@@ -4,10 +4,10 @@
 #include <string>
 #include <fstream>
 
-#define g 0.1
+#define g 0.15
 #define TIME_SCALE 8000.0
 #define Mu 0.1
-#define a 0.3
+#define a 0.15
 
 using namespace sf;
 using namespace std;
@@ -102,12 +102,14 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Up))
         {
             game.player.Jump();
+            if (game.player.speedy > 0)
+                game.player.speedy += 0.2;
         }
-        else if (game.player.speedy > 0)
-        {
-            game.player.speedy /= 2.0f;
-        }
-        if (abs(game.player.speedx)<=2)
+        //else if (game.player.speedy > 0)
+        //{
+        //    game.player.speedy /= 2.0f;
+        //}
+        if (abs(game.player.speedx)<=3)
         {
             if (Keyboard::isKeyPressed(Keyboard::Right))
             {
@@ -249,7 +251,7 @@ void Game::Draw(RenderWindow& window)
         var->Draw(spriteWall, window);
     }
     player.Draw(spritePlayer, window);
-    view.setCenter(player.position.x, player.position.y);
+    view.setCenter(player.position.x+200, 100+player.position.y/2);
     window.setView(view);
 }
 
@@ -281,7 +283,7 @@ void Player::Jump()
 {
     if (speedy == 0)
     {
-        speedy = 5.3;
+        speedy = 3.8;
     }
 }
 
