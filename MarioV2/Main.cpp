@@ -99,15 +99,18 @@ int main()
         {
             game.player.Jump();
         }
-        if (Keyboard::isKeyPressed(Keyboard::Right))
+        else game.player.speedy -= 0.25;
+        if (abs(game.player.speedx)<=2)
         {
-            game.player.speedx += 3;
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                game.player.speedx += 0.3;
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                game.player.speedx -= 0.3;
+            }
         }
-        if (Keyboard::isKeyPressed(Keyboard::Left))
-        {
-            game.player.speedx -= 3;
-        }
-
 
         game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
         timeClock.restart();
@@ -229,7 +232,8 @@ void Game::Update(double time)
 void Game::Draw(RenderWindow& window)
 {
     Sprite spriteWall(textureWall), spritePlayer(texturePlayer);
-    spritePlayer.scale(2, 2);
+    spritePlayer.setScale(2, 2);
+    
     for (auto var : walls)
     {
         var->Draw(spriteWall, window);
@@ -241,7 +245,14 @@ void Player::Update(double time)
 {
     BaseEntity::Update(time);
     position.x += speedx * time;
-    speedx = 0;
+    if (abs(speedx) > 0.3)
+    {
+        if (speedx > 0)speedx -= 0.1;
+        else if (speedx < 0)speedx += 0.1;
+    }
+    else speedx = 0;
+
+    
 }
 
 Player::Player()
