@@ -404,7 +404,7 @@ bool BaseEnemy::onPlayerEnter(Player& player)
 
 bool Enemy::onPlayerEnter(Player &player)
 {
-    if (player.speedy < -0.2)
+    if (player.speedy < -0.5)
     {
         this->Die();
         player.speedy = 2;
