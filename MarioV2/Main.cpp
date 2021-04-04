@@ -6,6 +6,8 @@
 
 #define g 0.1
 #define TIME_SCALE 8000.0
+#define Mu 0.1
+#define a 0.3
 
 using namespace sf;
 using namespace std;
@@ -71,6 +73,7 @@ public:
     ~Game();
     Player player;
     vector<Wall*> walls;
+    View view;
     void Update(double time);
     void Draw(RenderWindow& window);
     void LoadLevel(string levelName);
@@ -86,6 +89,7 @@ int main()
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
     Game game;
+    game.LoadLevel("1lvl.txt");
 
     while (window.isOpen())
     {
@@ -99,16 +103,19 @@ int main()
         {
             game.player.Jump();
         }
-        else game.player.speedy -= 0.25;
+        else if (game.player.speedy > 0)
+        {
+            game.player.speedy /= 2.0f;
+        }
         if (abs(game.player.speedx)<=2)
         {
             if (Keyboard::isKeyPressed(Keyboard::Right))
             {
-                game.player.speedx += 0.3;
+                game.player.speedx += a;
             }
             if (Keyboard::isKeyPressed(Keyboard::Left))
             {
-                game.player.speedx -= 0.3;
+                game.player.speedx -= a;
             }
         }
 
@@ -156,8 +163,7 @@ Game::Game()
 {
     textureWall.loadFromFile("Wall.png");
     texturePlayer.loadFromFile("Mario.png");
-
-    LoadLevel("1lvl.txt");
+    view = View(Vector2f(0, 0), Vector2f(800, 600));
 }
 
 Game::~Game()
@@ -166,9 +172,13 @@ Game::~Game()
 
 void Game::LoadLevel(string levelName)
 {
+    for (auto wall : walls)
+    {
+        wall->~Wall();
+    }
     walls.clear();
-    ifstream fin(levelName);
 
+    ifstream fin(levelName);
     int n = 0;
     for (std::string line; getline(fin, line); )
     {
@@ -239,20 +249,22 @@ void Game::Draw(RenderWindow& window)
         var->Draw(spriteWall, window);
     }
     player.Draw(spritePlayer, window);
+    view.setCenter(player.position.x, player.position.y);
+    window.setView(view);
 }
 
 void Player::Update(double time)
 {
     BaseEntity::Update(time);
     position.x += speedx * time;
-    if (abs(speedx) > 0.3)
+    if (abs(speedx) >= a)
     {
-        if (speedx > 0)speedx -= 0.1;
-        else if (speedx < 0)speedx += 0.1;
+        if (speedx > 0)
+            speedx -= Mu;
+        else if (speedx < 0)
+            speedx += Mu;
     }
     else speedx = 0;
-
-    
 }
 
 Player::Player()
@@ -269,7 +281,7 @@ void Player::Jump()
 {
     if (speedy == 0)
     {
-        speedy = 4;
+        speedy = 5.3;
     }
 }
 
