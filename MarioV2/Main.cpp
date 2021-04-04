@@ -14,14 +14,49 @@ class BaseEntity
 {
 public:
     BaseEntity();
-    BaseEntity(Sprite sprite, Vector2f position, bool isKinematic);
+    BaseEntity(Vector2f position, bool isKinematic, bool canCollide);
     ~BaseEntity();
-    Sprite sprite;
+    Vector2f position;
     bool isKinematic;
+    bool canCollide;
     float speedx;
     float speedy;
-    void Update(double time);
-    void Draw(RenderWindow& window);
+    virtual void Update(double time);
+    virtual void Draw(Sprite& sprite, RenderWindow& window);
+
+private:
+
+};
+
+class Player : public BaseEntity
+{
+public:
+    Player();
+    ~Player();
+    Player(Vector2f position);
+    virtual void Update(double time) override;
+    void Jump();
+
+private:
+
+};
+
+class Enemy : public BaseEntity
+{
+public:
+    Enemy();
+    ~Enemy();
+
+private:
+
+};
+
+class Wall :public BaseEntity
+{
+public:
+    Wall();
+    ~Wall();
+    Wall(Vector2f position);
 
 private:
 
@@ -32,16 +67,12 @@ class Game
 public:
     Game();
     ~Game();
-
-private:
-
-};
-
-class Player
-{
-public:
-    Player();
-    ~Player();
+    Player player;
+    vector<Wall*> walls;
+    void Update(double time);
+    void Draw(RenderWindow& window);
+    Texture texturePlayer;
+    Texture textureWall;
 
 private:
 
@@ -51,11 +82,7 @@ int main()
 {
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
-    Texture texture;
-    texture.loadFromFile("Mario.png");
-    Sprite sprite(texture);
-    sprite.setScale(2, 2);
-    BaseEntity entity(sprite, Vector2f(0, 0), true);
+    Game game;
 
 
     while (window.isOpen())
@@ -66,12 +93,25 @@ int main()
             if (e.type == Event::Closed)
                 window.close();
         }
+        if (Keyboard::isKeyPressed(Keyboard::Up))
+        {
+            game.player.Jump();
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Right))
+        {
+            game.player.speedx += 3;
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Left))
+        {
+            game.player.speedx -= 3;
+        }
 
-        entity.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+
+        game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
         timeClock.restart();
         
         window.clear();
-        entity.Draw(window);
+        game.Draw(window);
         window.display();
     }
 }
@@ -80,26 +120,27 @@ void BaseEntity::Update(double time)
 {
     if (!isKinematic)
         return;
+    position.y += -speedy * time;
     speedy = speedy - g * time;
-    sprite.move(0, -speedy * time);
 }
 
-void BaseEntity::Draw(RenderWindow& window)
+void BaseEntity::Draw(Sprite& sprite,RenderWindow& window)
 {
+    sprite.setPosition(position);
     window.draw(sprite);
+}
+
+BaseEntity::BaseEntity(Vector2f position, bool isKinematic, bool canCollide)
+{
+    speedx = 0;
+    speedy = 0;
+    this->canCollide = canCollide;
+    this->position = position;
+    this->isKinematic = isKinematic;
 }
 
 BaseEntity::BaseEntity()
 {
-}
-
-BaseEntity::BaseEntity(Sprite sprite, Vector2f position, bool isKinematic)
-{
-    speedx = 0;
-    speedy = 0;
-    this->sprite = sprite;
-    sprite.setPosition(position);
-    this->isKinematic = isKinematic;
 }
 
 BaseEntity::~BaseEntity()
@@ -108,10 +149,66 @@ BaseEntity::~BaseEntity()
 
 Game::Game()
 {
+    textureWall.loadFromFile("Wall.png");
+    texturePlayer.loadFromFile("Mario.png");
+
+    this->player = Player(Vector2f(0, 0));
+    
+    for (int i = 0; i < 20; i++)
+    {
+        walls.push_back(new Wall(Vector2f(i * 32, 128)));
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        walls.push_back(new Wall(Vector2f(128, 64 + 32 + i*32)));
+    }
 }
 
 Game::~Game()
 {
+}
+
+void Game::Update(double time)
+{
+    for(auto var : walls)
+    {
+        var->Update(time);
+    }
+    player.Update(time);
+    for (auto wall : walls)
+    {
+        if (wall->position.x - player.position.x < 32 && wall->position.x - player.position.x > 0 && wall->position.y - player.position.y < 32)
+        {
+            player.position.x = wall->position.x - 32;
+        }
+        /*else if(wall->position.x - player.position.x > -32 && wall->position.x - player.position.x < 0 && wall->position.y - player.position.y < 32)
+        {
+            player.position.x = wall->position.x + 32;
+        }*/
+        if (abs(wall->position.x - player.position.x) < 32 && wall->position.y - player.position.y < 32)
+        {
+            player.position.y = wall->position.y - 32;
+            player.speedy = 0;
+        }
+    }
+}
+
+void Game::Draw(RenderWindow& window)
+{
+    Sprite spriteWall(textureWall), spritePlayer(texturePlayer);
+    spritePlayer.scale(2, 2);
+    for (auto var : walls)
+    {
+        var->Draw(spriteWall, window);
+    }
+    player.Draw(spritePlayer, window);
+}
+
+void Player::Update(double time)
+{
+    BaseEntity::Update(time);
+    position.x += speedx * time;
+    speedx = 0;
 }
 
 Player::Player()
@@ -119,5 +216,39 @@ Player::Player()
 }
 
 Player::~Player()
+{
+}
+
+void Player::Jump()
+{
+    if (speedy == 0)
+    {
+        speedy = 3;
+    }
+}
+
+Player::Player(Vector2f position) : BaseEntity(position, true, true)
+{
+
+}
+
+Enemy::Enemy()
+{
+}
+
+Enemy::~Enemy()
+{
+}
+
+Wall::Wall()
+{
+}
+
+Wall::Wall(Vector2f position) : BaseEntity(position, false, true)
+{
+
+}
+
+Wall::~Wall()
 {
 }
