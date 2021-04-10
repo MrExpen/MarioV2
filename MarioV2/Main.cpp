@@ -40,6 +40,12 @@ enum GameAction : short
     EnemyDead
 };
 
+enum Direction : bool
+{
+    Right,
+    Left
+};
+
 class Player : public BaseEntity
 {
 public:
@@ -51,6 +57,7 @@ public:
     virtual void Update(double time) override;
     void Jump();
     GameAction TakeDamage();
+    Direction direction;
 
 private:
 
@@ -255,6 +262,7 @@ void Game::LoadLevel(string levelName)
         n++;
     }
     fin.close();
+    state = State::GameOn;
 }
 
 void Game::Update(double time)
@@ -284,10 +292,10 @@ void Game::Update(double time)
             if (enemy->speedx > 0 && abs(wall->position.y - enemy->position.y) < 32)
             {
                 float posx = enemy->position.x + enemy->speedx * time;
-                if (wall->position.x - posx < 32 && wall->position.x - posx > 0)
+                if (wall->position.x - posx < 30 && wall->position.x - posx > 0)
                 {
-                    enemy->speedx = -1;
-                    enemy->position.x = wall->position.x - 32;
+                    enemy->speedx = -enemy->speedx;
+                    enemy->position.x = wall->position.x - 30;
                 }
             }
             else if (enemy->speedx < 0 && abs(wall->position.y - enemy->position.y) < 32)
@@ -295,12 +303,24 @@ void Game::Update(double time)
                 float posx = enemy->position.x + enemy->speedx * time;
                 if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
                 {
-                    enemy->speedx = 1;
+                    enemy->speedx = -enemy->speedx;
                     enemy->position.x = wall->position.x + 32;
                 }
             }
         }
     }
+    for (int i = 0; i < enemies.size(); i++)
+    {
+        for (int j = i + 1; j < enemies.size(); j++)
+        {
+            if (abs(enemies[i]->position.x - enemies[j]->position.x) <= 32 && abs(enemies[i]->position.y - enemies[j]->position.y) <= 32)
+            {
+                enemies[i]->speedx = -enemies[i]->speedx;
+                enemies[j]->speedx = -enemies[j]->speedx;
+            }
+        }
+    }
+
     for (auto enemy : enemies)
     {
         enemy->Update(time);
@@ -337,12 +357,12 @@ void Game::Update(double time)
         }
         for (auto enemy : enemies)
         {
-            if (wall->position.x - enemy->position.x < 32 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y < 32 && wall->position.y - enemy->position.y > 0)
+            if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y < 32 && wall->position.y - enemy->position.y > 0)
             {
                 enemy->position.y = wall->position.y - 32;
                 enemy->speedy = 0;
             }
-            if (wall->position.x - enemy->position.x < 32 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y > -32 && wall->position.y - enemy->position.y < 0)
+            if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y > -32 && wall->position.y - enemy->position.y < 0)
             {
                 enemy->position.y = wall->position.y + 32;
                 enemy->speedy = -0.00001;
@@ -354,7 +374,6 @@ void Game::Update(double time)
 void Game::Draw(RenderWindow& window)
 {
     Sprite spritePlayer(texturePlayer), spriteEnemy1(textureEnemy);
-    spritePlayer.setScale(2, 2);
     vector<Sprite> spritesWall;
     for (auto texture: texturesWall)
     {
@@ -364,6 +383,15 @@ void Game::Draw(RenderWindow& window)
     for (auto var : walls)
     {
         var->Draw(spritesWall[var->spriteindex], window);
+    }
+    if (player.direction == Direction::Left)
+    {
+        spritePlayer.setScale(-2, 2);
+        spritePlayer.setOrigin(12, 0);
+    }
+    else
+    {
+        spritePlayer.setScale(2, 2);
     }
     player.Draw(spritePlayer, window);
     for (auto enemy : enemies)
@@ -386,6 +414,14 @@ void Player::Update(double time)
             speedx += Mu;
     }
     else speedx = 0;
+    if (speedx > 0)
+    {
+        direction = Direction::Right;
+    }
+    else if (speedx < 0)
+    {
+        direction = Direction::Left;
+    }
 }
 
 void Enemy::Update(double time)
@@ -397,6 +433,7 @@ void Enemy::Update(double time)
 Player::Player() : BaseEntity(Vector2f(0, 0), true, true)
 {
     health = 3;
+    direction = Direction::Right;
 }
 
 Player::~Player()
@@ -424,6 +461,7 @@ Player::Player(Vector2f position) : BaseEntity(position, true, true)
 {
     spawn = position;
     health = 3;
+    direction = Direction::Right;
 }
 
 Enemy::Enemy(Vector2f position) : BaseEnemy(position, true)
