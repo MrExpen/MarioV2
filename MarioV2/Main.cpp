@@ -32,6 +32,14 @@ private:
 
 };
 
+enum GameAction : short
+{
+    PlayerTakeDamage,
+    PlayerDead,
+    EnemyTakeDamage,
+    EnemyDead
+};
+
 class Player : public BaseEntity
 {
 public:
@@ -42,7 +50,7 @@ public:
     Vector2f spawn;
     virtual void Update(double time) override;
     void Jump();
-    void TakeDamage();
+    GameAction TakeDamage();
 
 private:
 
@@ -53,7 +61,7 @@ class BaseEnemy : public BaseEntity
 public:
     ~BaseEnemy();
     BaseEnemy(Vector2f position, bool isKinematic);
-    virtual bool onPlayerEnter(Player& player);
+    virtual GameAction onPlayerEnter(Player& player);
     virtual void Die();
 
 private:
@@ -63,10 +71,9 @@ private:
 class Enemy : public BaseEnemy
 {
 public:
-    Enemy();
     Enemy(Vector2f position);
     virtual void Update(double time) override;
-    virtual bool onPlayerEnter(Player& player) override;
+    virtual GameAction onPlayerEnter(Player& player) override;
     virtual void Die() override;
     ~Enemy();
 
@@ -85,12 +92,21 @@ private:
 
 };
 
+enum State : short
+{
+    GameOn,
+    GamePause,
+    GameOver
+};
+
 class Game
 {
 public:
     Game();
     ~Game();
     Player player;
+    string lvlName;
+    State state;
     vector<Wall*> walls;
     vector<BaseEnemy*> enemies;
     View view;
@@ -99,7 +115,7 @@ public:
     void LoadLevel(string levelName);
     Texture texturePlayer;
     vector<Texture*> texturesWall;
-    Texture textureEnemy1;
+    Texture textureEnemy;
 
 private:
 
@@ -119,26 +135,40 @@ int main()
         {
             if (e.type == Event::Closed)
                 window.close();
-        }
-        if (Keyboard::isKeyPressed(Keyboard::Up))
-        {
-            game.player.Jump();
-            if (game.player.speedy > 0)
-                game.player.speedy += 0.093 * (timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
-        }
-        if (abs(game.player.speedx)<=3)
-        {
-            if (Keyboard::isKeyPressed(Keyboard::Right))
+            if (e.type == Event::KeyPressed)
             {
-                game.player.speedx += a;
-            }
-            if (Keyboard::isKeyPressed(Keyboard::Left))
-            {
-                game.player.speedx -= a;
+                if (e.key.code == Keyboard::Escape)
+                {
+                    if (game.state != State::GameOver)
+                    {
+                        game.state = (State)!bool(game.state);
+                    }
+                }
             }
         }
-        
-        game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+
+        if (game.state == State::GameOn)
+        {
+            if (Keyboard::isKeyPressed(Keyboard::Up))
+            {
+                game.player.Jump();
+                if (game.player.speedy > 0)
+                    game.player.speedy += 0.093 * (timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+            }
+            if (abs(game.player.speedx) <= 3)
+            {
+                if (Keyboard::isKeyPressed(Keyboard::Right))
+                {
+                    game.player.speedx += a;
+                }
+                if (Keyboard::isKeyPressed(Keyboard::Left))
+                {
+                    game.player.speedx -= a;
+                }
+            }
+
+            game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+        }
         timeClock.restart();
         
         window.clear(color);
@@ -176,17 +206,15 @@ BaseEntity::~BaseEntity()
 
 Game::Game()
 {
-    
-
-   
     texturePlayer.loadFromFile("Mario.png");
-    textureEnemy1.loadFromFile("enemy1.png");
+    textureEnemy.loadFromFile("enemy1.png");
     for (int i = 0; i < 8; i++)
     {
         Texture* textureWall = new Texture();
         textureWall->loadFromFile("Walls.png", IntRect(Vector2i(i * 32, 0), Vector2i(32, 32)));
         texturesWall.push_back(textureWall);
     }
+    state = State::GamePause;
     view = View(Vector2f(0, 0), Vector2f(800, 600));
 }
 
@@ -196,6 +224,7 @@ Game::~Game()
 
 void Game::LoadLevel(string levelName)
 {
+    lvlName = levelName;
     for (auto wall : walls)
     {
         wall->~Wall();
@@ -278,9 +307,18 @@ void Game::Update(double time)
         float difx = enemy->position.x - player.position.x, dify = enemy->position.y - player.position.y;
         if (abs(dify) < 32 && difx < 24 && difx > -32)
         {
-            if (enemy->onPlayerEnter(player))
+            switch (enemy->onPlayerEnter(player))
             {
+            case GameAction::EnemyDead:
                 enemies.erase(find(enemies.begin(), enemies.end(), enemy));
+                enemy->~BaseEnemy();
+                break;
+            case GameAction::PlayerDead:
+                state = State::GameOver;
+                break;
+            case GameAction::PlayerTakeDamage:
+                player.position = player.spawn;
+                break;
             }
         }
     }
@@ -315,7 +353,7 @@ void Game::Update(double time)
 
 void Game::Draw(RenderWindow& window)
 {
-    Sprite spritePlayer(texturePlayer), spriteEnemy1(textureEnemy1);
+    Sprite spritePlayer(texturePlayer), spriteEnemy1(textureEnemy);
     spritePlayer.setScale(2, 2);
     vector<Sprite> spritesWall;
     for (auto texture: texturesWall)
@@ -365,13 +403,13 @@ Player::~Player()
 {
 }
 
-void Player::TakeDamage()
+GameAction Player::TakeDamage()
 {
-    if (--health == 0)
+    if (--health <= 0)
     {
-        window.close();
+        return GameAction::PlayerDead;
     }
-    position = spawn;
+    return GameAction::PlayerTakeDamage;
 }
 
 void Player::Jump()
@@ -397,23 +435,22 @@ Enemy::~Enemy()
 {
 }
 
-bool BaseEnemy::onPlayerEnter(Player& player)
+GameAction BaseEnemy::onPlayerEnter(Player& player)
 {
-    return false;
+    return player.TakeDamage();
 }
 
-bool Enemy::onPlayerEnter(Player &player)
+GameAction Enemy::onPlayerEnter(Player &player)
 {
     if (player.speedy < -0.5)
     {
         this->Die();
         player.speedy = 2;
-        return true;
+        return GameAction::EnemyDead;
     }
     else
     {
-        player.TakeDamage();
-        return false;
+        return player.TakeDamage();
     }
 }
 
