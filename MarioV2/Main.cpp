@@ -1,4 +1,4 @@
-//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
@@ -9,7 +9,7 @@
 #define g 0.15
 #define TIME_SCALE 8000.0
 #define Mu 0.1
-#define a 0.15
+#define a 0.14
 
 using namespace sf;
 using namespace std;
@@ -183,7 +183,6 @@ int main()
         window.clear(color);
         game.Draw(window);
         window.display();
-        cout << game.player.health << endl;
     }
 }
 
@@ -281,9 +280,14 @@ void Game::Update(double time)
             
             if (player.position.y>800)
             {
+                if (player.health <= 0)
+                {
+                    state = State::GameOver;
+                    return;
+                }
                 player.isDamaged = false;                
                 player.position = player.spawn;
-
+         
             }
         }
         else
@@ -477,9 +481,9 @@ Player::~Player()
 GameAction Player::TakeDamage()
 {
     speedy = 3;
-    if (--health <= 0)
+    if (--health < 0)
     {
-        return GameAction::PlayerDead;
+       return GameAction::PlayerDead;
     }
     return GameAction::PlayerTakeDamage;
 }
