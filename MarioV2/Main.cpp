@@ -1,5 +1,5 @@
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
