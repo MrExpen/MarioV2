@@ -1,9 +1,10 @@
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
 #define g 0.15
 #define TIME_SCALE 8000.0
@@ -49,13 +50,14 @@ enum Direction : bool
 class Player : public BaseEntity
 {
 public:
-    int health;
+    int health, camx, camy;
     Player();
     ~Player();
     Player(Vector2f position);
     Vector2f spawn;
     virtual void Update(double time) override;
     void Jump();
+    bool isDamaged;
     GameAction TakeDamage();
     Direction direction;
 
@@ -181,6 +183,7 @@ int main()
         window.clear(color);
         game.Draw(window);
         window.display();
+        cout << game.player.health << endl;
     }
 }
 
@@ -267,24 +270,41 @@ void Game::LoadLevel(string levelName)
 
 void Game::Update(double time)
 {
+    
     for (auto wall : walls)
     {
-        if (player.speedx > 0 && abs(wall->position.y - player.position.y) < 32)
+        if (player.isDamaged)
         {
-            float posx = player.position.x + player.speedx * time;
-            if (wall->position.x - posx < 24 && wall->position.x - posx > 0)
+            player.speedx = 0;
+            if (player.speedy<-5)
+                player.speedy = -5;
+            
+            if (player.position.y>800)
             {
-                player.speedx = 0;
-                player.position.x = wall->position.x - 24;
+                player.isDamaged = false;                
+                player.position = player.spawn;
+
             }
         }
-        else if(player.speedx < 0 && abs(wall->position.y - player.position.y) < 32)
+        else
         {
-            float posx = player.position.x + player.speedx * time;
-            if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+            if (player.speedx > 0 && abs(wall->position.y - player.position.y) < 32)
             {
-                player.speedx = 0;
-                player.position.x = wall->position.x + 32;
+                float posx = player.position.x + player.speedx * time;
+                if (wall->position.x - posx < 24 && wall->position.x - posx > 0)
+                {
+                    player.speedx = 0;
+                    player.position.x = wall->position.x - 24;
+                }
+            }
+            else if (player.speedx < 0 && abs(wall->position.y - player.position.y) < 32)
+            {
+                float posx = player.position.x + player.speedx * time;
+                if (posx - wall->position.x < 32 && posx - wall->position.x > 0)
+                {
+                    player.speedx = 0;
+                    player.position.x = wall->position.x + 32;
+                }
             }
         }
         for (auto enemy : enemies)
@@ -320,55 +340,63 @@ void Game::Update(double time)
             }
         }
     }
-
-    for (auto enemy : enemies)
+    if (player.isDamaged != true)
     {
-        enemy->Update(time);
-        float difx = enemy->position.x - player.position.x, dify = enemy->position.y - player.position.y;
-        if (abs(dify) < 32 && difx < 24 && difx > -32)
+        for (auto enemy : enemies)
         {
-            switch (enemy->onPlayerEnter(player))
+            enemy->Update(time);
+            float difx = enemy->position.x - player.position.x, dify = enemy->position.y - player.position.y;
+            if (abs(dify) < 32 && difx < 24 && difx > -32)
             {
-            case GameAction::EnemyDead:
-                enemies.erase(find(enemies.begin(), enemies.end(), enemy));
-                enemy->~BaseEnemy();
-                break;
-            case GameAction::PlayerDead:
-                state = State::GameOver;
-                break;
-            case GameAction::PlayerTakeDamage:
-                player.position = player.spawn;
-                break;
+                switch (enemy->onPlayerEnter(player))
+                {
+                case GameAction::EnemyDead:
+                    enemies.erase(find(enemies.begin(), enemies.end(), enemy));
+                    enemy->~BaseEnemy();
+                    break;
+                case GameAction::PlayerDead:
+                    state = State::GameOver;
+                    break;
+                case GameAction::PlayerTakeDamage:
+                    player.isDamaged = true;
+                    break;
+                }
             }
         }
     }
     player.Update(time);
+    
+    
     for (auto wall : walls)
-    {
-        if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
         {
-            player.position.y = wall->position.y - 32;
-            player.speedy = 0;
-        }
-        if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y > -32 && wall->position.y - player.position.y < 0)
+        if (player.isDamaged != true)
         {
-            player.position.y = wall->position.y + 32;
-            player.speedy = -0.00001f;
-        }
-        for (auto enemy : enemies)
-        {
-            if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y < 32 && wall->position.y - enemy->position.y > 0)
+            if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y < 32 && wall->position.y - player.position.y > 0)
             {
-                enemy->position.y = wall->position.y - 32;
-                enemy->speedy = 0;
+                player.position.y = wall->position.y - 32;
+                player.speedy = 0;
             }
-            if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y > -32 && wall->position.y - enemy->position.y < 0)
+            if (wall->position.x - player.position.x < 24 && wall->position.x - player.position.x > -32 && wall->position.y - player.position.y > -32 && wall->position.y - player.position.y < 0)
             {
-                enemy->position.y = wall->position.y + 32;
-                enemy->speedy = -0.00001;
+                player.position.y = wall->position.y + 32;
+                player.speedy = -0.00001f;
             }
         }
-    }
+            for (auto enemy : enemies)
+            {
+                if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y < 32 && wall->position.y - enemy->position.y > 0)
+                {
+                    enemy->position.y = wall->position.y - 32;
+                    enemy->speedy = 0;
+                }
+                if (wall->position.x - enemy->position.x < 30 && wall->position.x - enemy->position.x > -32 && wall->position.y - enemy->position.y > -32 && wall->position.y - enemy->position.y < 0)
+                {
+                    enemy->position.y = wall->position.y + 32;
+                    enemy->speedy = -0.00001;
+                }
+            }
+        }
+    
 }
 
 void Game::Draw(RenderWindow& window)
@@ -398,7 +426,12 @@ void Game::Draw(RenderWindow& window)
     {
         enemy->Draw(spriteEnemy1, window);
     }
-    view.setCenter(player.position.x/1.1f+100, 100+player.position.y/2.0f);
+    if (player.isDamaged!=true)
+    {
+        player.camx = player.position.x / 1.1f + 100;
+        player.camy = 100 + player.position.y / 2.0f;
+    }
+    view.setCenter(player.camx, player.camy);
     window.setView(view);
 }
 
@@ -433,6 +466,7 @@ void Enemy::Update(double time)
 Player::Player() : BaseEntity(Vector2f(0, 0), true, true)
 {
     health = 3;
+    isDamaged = false;
     direction = Direction::Right;
 }
 
@@ -442,6 +476,7 @@ Player::~Player()
 
 GameAction Player::TakeDamage()
 {
+    speedy = 3;
     if (--health <= 0)
     {
         return GameAction::PlayerDead;
@@ -461,6 +496,7 @@ Player::Player(Vector2f position) : BaseEntity(position, true, true)
 {
     spawn = position;
     health = 3;
+    isDamaged = false;
     direction = Direction::Right;
 }
 
