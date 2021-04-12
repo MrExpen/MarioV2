@@ -1,24 +1,23 @@
+//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #include <SFML/Graphics.hpp>
+#include "BaseEntity.h"
+
+using namespace sf;
+
+RenderWindow window(VideoMode(200, 200), "SFML works!");
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
     while (window.isOpen())
     {
-        sf::Event event;
+        Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
+            if (event.type == Event::Closed)
                 window.close();
         }
 
         window.clear();
-        window.draw(shape);
         window.display();
     }
-
-    return 0;
 }
