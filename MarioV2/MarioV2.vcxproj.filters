@@ -13,16 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Исходные файлы\Data">
-      <UniqueIdentifier>{45f92f76-351a-42a7-a29e-ce15961fe2b4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseEntity.cpp">
-      <Filter>Исходные файлы\Data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
