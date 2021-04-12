@@ -8,9 +8,9 @@ class BaseEntity
 public:
 	bool isKinematic;
 	bool canCollide;
+	Vector2f size;
 	Vector2f position;
 	Vector2f spead;
 	virtual void Update(float time);
 	virtual void Draw(RenderWindow& window);
 };
-
