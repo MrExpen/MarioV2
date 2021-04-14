@@ -69,6 +69,15 @@ void Player::UpdateY(float time)
 		Speed.y = MIN_PLAYER_SPEED_Y;
 	}
 }
+
+GameAction Player::TakeDamage()
+{
+	if (--HealthPoints <= 0)
+	{
+		return GameAction::PlayerDie;
+	}
+	return GameAction::PlayerTakeDamage;
+}
 //TODO: 32x32
 Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(32, 32), position, Vector2f(0, 0))
 {
