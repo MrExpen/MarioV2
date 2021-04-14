@@ -5,8 +5,9 @@ using namespace sf;
 
 void BaseEntity::Draw(RenderWindow& window)
 {
-	Sprite sprite(*Textures[GetTextureIndex()]);
-	window.draw(sprite);
+	auto tmp = GetSprite();
+	window.draw(*tmp);
+	tmp->~Drawable();
 }
 
 void BaseEntity::UpdateX(float time)
@@ -26,6 +27,12 @@ void BaseEntity::UpdateY(float time)
 int BaseEntity::GetTextureIndex()
 {
 	return 0;
+}
+
+Drawable* BaseEntity::GetSprite()
+{
+	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
+	return sprite;
 }
 
 BaseEntity::BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2f position, Vector2f speed)

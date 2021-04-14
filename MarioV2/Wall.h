@@ -4,5 +4,6 @@
 class Wall :
     public BaseEntity
 {
+
 };
 

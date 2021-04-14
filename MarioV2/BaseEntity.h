@@ -18,5 +18,6 @@ public:
 	virtual void UpdateX(float time);
 	virtual void UpdateY(float time);
 	virtual int GetTextureIndex();
+	virtual Drawable* GetSprite();
 	BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2f position, Vector2f speed);
 };
