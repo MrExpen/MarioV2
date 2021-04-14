@@ -28,7 +28,7 @@ int main()
         game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
         timeClock.restart();
 
-        window.clear();
+        window.clear(Color::White);
         game.Draw(window);
         window.display();
     }

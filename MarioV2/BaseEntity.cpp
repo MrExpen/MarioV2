@@ -31,6 +31,12 @@ int BaseEntity::GetTextureIndex()
 
 Drawable* BaseEntity::GetSprite()
 {
+	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
+	rectangleShape->setFillColor(Color::Black);
+	return rectangleShape;
+
+	//TODO
+
 	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
 	return sprite;
 }
