@@ -12,7 +12,7 @@ void BaseEntity::Draw(RenderWindow& window)
 
 bool BaseEntity::isIntersect(BaseEntity& entity)
 {
-	return (entity.Position.y - Position.y < Size.y&& Position.y - entity.Position.y < entity.Size.y) && (entity.Position.x - Position.x < Size.x&& Position.x - entity.Position.x < entity.Size.x);
+	return (entity.Position.y - Position.y < Size.y&& Position.y - entity.Position.y < entity.Size.y) && (entity.Position.x - Position.x < Size.x&& Position.x - entity.Position.x < entity.Size.x) && canCollide && entity.canCollide;
 }
 
 void BaseEntity::UpdateX(float time)
