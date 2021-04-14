@@ -1,6 +1,6 @@
 #pragma once
 
-enum Move : short
+enum class Move : short
 {
 	None,
 	Right,

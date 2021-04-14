@@ -1,6 +1,6 @@
 #pragma once
 
-enum Direction : short
+enum class Direction : short
 {
 	Right,
 	Left

@@ -4,6 +4,7 @@
 class Wall :
     public BaseEntity
 {
-
+public:
+    Wall(Vector2f position);
 };
 

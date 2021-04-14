@@ -70,15 +70,20 @@ void Player::UpdateY(float time)
 	}
 }
 
-Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(0, 0), position, Vector2f(0, 0))
+bool Player::isIntersect(BaseEntity& entity)
+{
+	return (entity.Position.y - Position.y < Size.y && Position.y - entity.Position.y < entity.Size.y) && (entity.Position.x - Position.x < Size.x && Position.x - entity.Position.x < entity.Size.x);
+}
+//TODO: 32x32
+Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(0, 0), position, Vector2f(32, 32))
 {
 	this->Direction = Direction::Right;
 	this->HealthPoints = MAX_PLAYER_HP;
 	this->SpawnPoint = position;
 	this->Move = Move::None;
 }
-
-Player::Player() : BaseEntity(true, true, Vector2f(0, 0), Vector2f(0, 0), Vector2f(0, 0))
+//TODO: 32x32
+Player::Player() : BaseEntity(true, true, Vector2f(0, 0), Vector2f(0, 0), Vector2f(32, 32))
 {
 	this->Direction = Direction::Right;
 	this->HealthPoints = MAX_PLAYER_HP;
