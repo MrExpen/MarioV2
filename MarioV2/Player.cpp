@@ -70,6 +70,14 @@ void Player::UpdateY(float time)
 	}
 }
 
+Drawable* Player::GetSprite()
+{
+	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
+	rectangleShape->setFillColor(Color::Magenta);
+	rectangleShape->setPosition(Position);
+	return rectangleShape;
+}
+
 GameAction Player::TakeDamage()
 {
 	if (--HealthPoints <= 0)

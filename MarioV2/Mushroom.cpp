@@ -14,6 +14,14 @@ GameAction Mushroom::onPlayerEnter(Player& player)
 	return player.TakeDamage();
 }
 
+Drawable* Mushroom::GetSprite()
+{
+	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
+	rectangleShape->setFillColor(Color::Red);
+	rectangleShape->setPosition(Position);
+	return rectangleShape;
+}
+
 Mushroom::~Mushroom()
 {
 }

@@ -9,6 +9,7 @@ class Mushroom :
 public:
 	Mushroom(Vector2f position);
 	virtual GameAction onPlayerEnter(Player& player) override;
+	virtual Drawable* GetSprite() override;
 	~Mushroom();
 };
 

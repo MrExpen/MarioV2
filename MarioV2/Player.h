@@ -26,6 +26,7 @@ public:
     void Jump();
     virtual void UpdateX(float time) override;
     virtual void UpdateY(float time) override;
+    virtual Drawable* GetSprite() override;
     GameAction TakeDamage();
     Player(Vector2f position);
     Player();
