@@ -3,4 +3,6 @@
 class BaseEnemy :
     public BaseEntity
 {
+public:
+    ~BaseEnemy();
 };

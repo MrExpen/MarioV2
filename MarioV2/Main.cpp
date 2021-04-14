@@ -4,7 +4,7 @@
 
 #define W 800
 #define H 600
-#define TIME_SCALE 800.0f
+#define TIME_SCALE 8000.0f
 
 using namespace sf;
 
@@ -15,6 +15,7 @@ int main()
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
     Game game;
+    game.LoadLevel("1lvl.txt");
 
     while (window.isOpen())
     {
@@ -25,7 +26,23 @@ int main()
                 window.close();
         }
 
-        game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+        if (game.State == GameState::GameOn)
+        {
+            if (Keyboard::isKeyPressed(Keyboard::Up))
+            {
+                game.Player.Jump();
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                game.Player.Move = Move::Left;
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                game.Player.Move = Move::Right;
+            }
+
+            game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+        }
         timeClock.restart();
 
         window.clear(Color::White);

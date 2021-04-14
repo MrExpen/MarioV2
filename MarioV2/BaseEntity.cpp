@@ -7,7 +7,6 @@ void BaseEntity::Draw(RenderWindow& window)
 {
 	auto tmp = GetSprite();
 	window.draw(*tmp);
-	tmp->~Drawable();
 }
 
 void BaseEntity::UpdateX(float time)
@@ -21,7 +20,7 @@ void BaseEntity::UpdateY(float time)
 {
 	if (!isKinematic)
 		return;
-	Position.y += Speed.y * time;
+	Position.y -= Speed.y * time;
 }
 
 int BaseEntity::GetTextureIndex()
@@ -31,7 +30,7 @@ int BaseEntity::GetTextureIndex()
 
 Drawable* BaseEntity::GetSprite()
 {
-	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
+	auto rectangleShape = new RectangleShape(Size);
 	rectangleShape->setFillColor(Color::Black);
 	rectangleShape->setPosition(Position);
 	return rectangleShape;

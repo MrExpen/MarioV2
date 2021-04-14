@@ -6,5 +6,6 @@ class Wall :
 {
 public:
     Wall(Vector2f position);
+    ~Wall();
 };
 

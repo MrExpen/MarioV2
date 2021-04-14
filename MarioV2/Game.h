@@ -16,11 +16,12 @@ public:
 	vector<Wall*> Walls;
 	vector<BaseEnemy*> Enemies;
 	Player Player;
-	string LebelName;
+	string LevelName;
 	GameState State;
 	Vector2f CameraCenter;
 	Vector2f CameraSize;
 	void Update(float time);
 	void Draw(RenderWindow& window);
+	void LoadLevel(string levelName);
 	Game();
 };
