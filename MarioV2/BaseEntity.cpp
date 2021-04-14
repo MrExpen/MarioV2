@@ -10,6 +10,11 @@ void BaseEntity::Draw(RenderWindow& window)
 	tmp->~Drawable();
 }
 
+bool BaseEntity::isIntersect(BaseEntity& entity)
+{
+	return (entity.Position.y - Position.y < Size.y&& Position.y - entity.Position.y < entity.Size.y) && (entity.Position.x - Position.x < Size.x&& Position.x - entity.Position.x < entity.Size.x);
+}
+
 void BaseEntity::UpdateX(float time)
 {
 	if (!isKinematic)

@@ -19,5 +19,6 @@ public:
 	virtual void UpdateY(float time);
 	virtual int GetTextureIndex();
 	virtual Drawable* GetSprite();
+	bool isIntersect(BaseEntity& entity);
 	BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2f position, Vector2f speed);
 };

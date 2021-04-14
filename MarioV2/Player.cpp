@@ -69,11 +69,6 @@ void Player::UpdateY(float time)
 		Speed.y = MIN_PLAYER_SPEED_Y;
 	}
 }
-
-bool Player::isIntersect(BaseEntity& entity)
-{
-	return (entity.Position.y - Position.y < Size.y && Position.y - entity.Position.y < entity.Size.y) && (entity.Position.x - Position.x < Size.x && Position.x - entity.Position.x < entity.Size.x);
-}
 //TODO: 32x32
 Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(32, 32), position, Vector2f(0, 0))
 {
