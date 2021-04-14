@@ -7,6 +7,7 @@ void BaseEntity::Draw(RenderWindow& window)
 {
 	auto tmp = GetSprite();
 	window.draw(*tmp);
+	tmp->~Drawable();
 }
 
 void BaseEntity::UpdateX(float time)

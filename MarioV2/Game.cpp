@@ -11,7 +11,7 @@ void Game::Update(float time)
 		{
 			if (Player.Speed.x > 0)
 			{
-				Player.Position.x = wall->Position.x + Player.Size.x;
+				Player.Position.x = wall->Position.x - Player.Size.x;
 			}
 			else if (Player.Speed.x < 0)
 			{

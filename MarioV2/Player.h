@@ -4,14 +4,14 @@
 #include "Move.h"
 
 #define MAX_PLAYER_HP 3
-#define MAX_PLAYER_SPEED_X 2
+#define MAX_PLAYER_SPEED_X 3
 #define MAX_PLAYER_SPEED_Y 100
 #define MIN_PLAYER_SPEED_X -MAX_PLAYER_SPEED_X
 #define MIN_PLAYER_SPEED_Y -MAX_PLAYER_SPEED_Y
-#define JUMP_SPEED 7
-#define ACCELERATION_X 0.15
+#define JUMP_SPEED 10
+#define ACCELERATION_X 0.1
 #define ACCELERATION_Y 0.3
-#define SPEED_X_ACCELERATION 1
+#define SPEED_X_ACCELERATION 0.5
 
 class Player :
     public BaseEntity
