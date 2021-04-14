@@ -33,6 +33,7 @@ Drawable* BaseEntity::GetSprite()
 {
 	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
 	rectangleShape->setFillColor(Color::Black);
+	rectangleShape->setPosition(Position);
 	return rectangleShape;
 
 	//TODO
