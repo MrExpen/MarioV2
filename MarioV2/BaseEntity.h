@@ -2,6 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+#define ACCELERATION_Y 0.1
+#define MAX_SPEED_Y 100
+#define MIN_SPEED_Y -MAX_SPEED_Y
+
 using namespace std;
 using namespace sf;
 

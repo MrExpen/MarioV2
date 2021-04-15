@@ -6,14 +6,12 @@
 
 #define MAX_PLAYER_HP 3
 #define MAX_PLAYER_SPEED_X 1.5
-#define MAX_PLAYER_SPEED_Y 100
 #define MIN_PLAYER_SPEED_X -MAX_PLAYER_SPEED_X
-#define MIN_PLAYER_SPEED_Y -MAX_PLAYER_SPEED_Y
-#define JUMP_SPEED 10
+#define JUMP_SPEED 5
 #define ACCELERATION_X 0.1
-#define ACCELERATION_Y 0.3
 #define SPEED_X_ACCELERATION 0.5
-#define JUMP_KILL_SPEED 4
+#define JUMP_KILL_SPEED 2
+#define WAY_TO_ACHIVE 6
 
 class Player :
     public BaseEntity
@@ -23,10 +21,11 @@ public:
     Vector2f SpawnPoint;
     Direction Direction;
     Move Move;
+    float Way;
     void Jump();
     virtual void UpdateX(float time) override;
-    virtual void UpdateY(float time) override;
     virtual Drawable* GetSprite() override;
+    virtual int GetTextureIndex() override;
     GameAction TakeDamage();
     Player(Vector2f position);
     Player();

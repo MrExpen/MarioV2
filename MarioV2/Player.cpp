@@ -14,11 +14,13 @@ void Player::UpdateX(float time)
 	{
 		Speed.x += SPEED_X_ACCELERATION * time;
 		Move = Move::None;
+		Way += SPEED_X_ACCELERATION * time;
 	}
 	else if (Move == Move::Left)
 	{
 		Speed.x -= SPEED_X_ACCELERATION * time;
 		Move = Move::None;
+		Way += SPEED_X_ACCELERATION * time;
 	}
 	else if (Move == Move::None)
 	{
@@ -51,31 +53,46 @@ void Player::UpdateX(float time)
 
 	BaseEntity::UpdateX(time);
 	if (Speed.x > 0)
+	{
+		if (this->Direction != Direction::Right)
+		{
+			Way = 0;
+		}
 		this->Direction = Direction::Right;
-	else if (Speed.x < 0)
-		this->Direction = Direction::Left;
-}
-
-void Player::UpdateY(float time)
-{
-	Speed.y -= ACCELERATION_Y * time;
-	BaseEntity::UpdateY(time);
-	if (Speed.y > MAX_PLAYER_SPEED_Y)
-	{
-		Speed.y = MAX_PLAYER_SPEED_Y;
 	}
-	else if (Speed.y < MIN_PLAYER_SPEED_Y)
+	else if (Speed.x < 0)
 	{
-		Speed.y = MIN_PLAYER_SPEED_Y;
+		if (this->Direction != Direction::Left)
+		{
+			Way = 0;
+		}
+		this->Direction = Direction::Left;
 	}
 }
 
 Drawable* Player::GetSprite()
 {
-	auto rectangleShape = new RectangleShape(Vector2f(32, 32));
-	rectangleShape->setFillColor(Color::Magenta);
-	rectangleShape->setPosition(Position);
-	return rectangleShape;
+	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
+	if (this->Direction == Direction::Left)
+	{
+		sprite->setScale(-1, 1);
+		sprite->setOrigin(Size.x, 0);
+	}
+	sprite->setPosition(Position);
+	return sprite;
+}
+
+int Player::GetTextureIndex()
+{
+	if (Speed.y != 0)
+		return 3;
+	if (!canCollide)
+		return 4;
+	if (Speed.x == 0)
+	{
+		return 0;
+	}
+	return (int(Way) / WAY_TO_ACHIVE) % 2 + 1;
 }
 
 GameAction Player::TakeDamage()
@@ -87,18 +104,27 @@ GameAction Player::TakeDamage()
 	return GameAction::PlayerTakeDamage;
 }
 //TODO: 32x32
-Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(32, 32), position, Vector2f(0, 0))
+Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(24, 32), position, Vector2f(0, 0))
 {
 	this->Direction = Direction::Right;
 	this->HealthPoints = MAX_PLAYER_HP;
 	this->SpawnPoint = position;
 	this->Move = Move::None;
+	Way = 0;
+
+	for (int i = 0; i < 5; i++)
+	{
+		Texture* texture = new Texture();
+		texture->loadFromFile("Images\\Mario.png", IntRect(i * 32, 0, 32, 32));
+		Textures.push_back(texture);
+	}
 }
 //TODO: 32x32
-Player::Player() : BaseEntity(true, true, Vector2f(32, 32), Vector2f(0, 0), Vector2f(0, 0))
+Player::Player() : BaseEntity(true, true, Vector2f(24, 32), Vector2f(0, 0), Vector2f(0, 0))
 {
 	this->Direction = Direction::Right;
 	this->HealthPoints = MAX_PLAYER_HP;
 	this->SpawnPoint = Vector2f(0, 0);
 	this->Move = Move::None;
+	Way = 0;
 }

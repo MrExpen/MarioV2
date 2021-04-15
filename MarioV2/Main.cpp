@@ -38,7 +38,14 @@ int main()
             }
             if (Keyboard::isKeyPressed(Keyboard::Right))
             {
-                game.Player.Move = Move::Right;
+                if (game.Player.Move == Move::Left)
+                {
+                    game.Player.Move = Move::None;
+                }
+                else
+                {
+                    game.Player.Move = Move::Right;
+                }
             }
 
             game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);

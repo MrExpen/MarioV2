@@ -26,7 +26,17 @@ void BaseEntity::UpdateY(float time)
 {
 	if (!isKinematic)
 		return;
+
+	Speed.y -= ACCELERATION_Y * time;
 	Position.y -= Speed.y * time;
+	if (Speed.y > MAX_SPEED_Y)
+	{
+		Speed.y = MAX_SPEED_Y;
+	}
+	else if (Speed.y < MIN_SPEED_Y)
+	{
+		Speed.y = MIN_SPEED_Y;
+	}
 }
 
 int BaseEntity::GetTextureIndex()
