@@ -14,13 +14,11 @@ void Player::UpdateX(float time)
 	{
 		Speed.x += SPEED_X_ACCELERATION * time;
 		Move = Move::None;
-		Way += Speed.x * time;
 	}
 	else if (Move == Move::Left)
 	{
 		Speed.x -= SPEED_X_ACCELERATION * time;
 		Move = Move::None;
-		Way += Speed.x * time;
 	}
 	else if (Move == Move::None)
 	{
@@ -41,6 +39,8 @@ void Player::UpdateX(float time)
 			}
 		}
 	}
+	Way += abs(Speed.x) * time;
+
 
 	if (Speed.x > MAX_PLAYER_SPEED_X)
 	{
