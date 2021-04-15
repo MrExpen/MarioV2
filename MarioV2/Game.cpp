@@ -170,7 +170,7 @@ void Game::LoadLevel(string levelName)
 			switch (line[i])
 			{
 			case '#':
-				Walls.push_back(new Wall(Vector2f(32 * i, 32 * n)));
+				Walls.push_back(new Wall(Vector2f(32 * i, 32 * n), 0));
 				break;
 			case '@':
 				Player = Player::Player(Vector2f(32 * i, 32 * n));
