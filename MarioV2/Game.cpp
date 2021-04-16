@@ -116,8 +116,9 @@ void Game::Update(float time)
 			switch (enemy->onPlayerEnter(Player))
 			{
 			case GameAction::PlayerTakeDamage:
-				Player.Position = Player.SpawnPoint;
-
+				Player.Speed.y = JUMP_KILL_SPEED;
+				Player.canCollide = false;
+				Player.Timer.restart();
 				break;
 			case GameAction::PlayerDie:
 				LoadLevel(LevelName);

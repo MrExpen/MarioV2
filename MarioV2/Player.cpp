@@ -10,36 +10,47 @@ void Player::Jump()
 
 void Player::UpdateX(float time)
 {
-	if (Move == Move::Right)
+	if (canCollide)
 	{
-		Speed.x += SPEED_X_ACCELERATION * time;
-		Move = Move::None;
-	}
-	else if (Move == Move::Left)
-	{
-		Speed.x -= SPEED_X_ACCELERATION * time;
-		Move = Move::None;
-	}
-	else if (Move == Move::None)
-	{
-		if (Speed.x > 0)
+		if (Move == Move::Right)
 		{
-			Speed.x -= ACCELERATION_X * time;
-			if (Speed.x < 0)
-			{
-				Speed.x = 0;
-			}
+			Speed.x += SPEED_X_ACCELERATION * time;
+			Move = Move::None;
 		}
-		else if (Speed.x < 0)
+		else if (Move == Move::Left)
 		{
-			Speed.x += ACCELERATION_X * time;
+			Speed.x -= SPEED_X_ACCELERATION * time;
+			Move = Move::None;
+		}
+		else if (Move == Move::None)
+		{
 			if (Speed.x > 0)
 			{
-				Speed.x = 0;
+				Speed.x -= ACCELERATION_X * time;
+				if (Speed.x < 0)
+				{
+					Speed.x = 0;
+				}
+			}
+			else if (Speed.x < 0)
+			{
+				Speed.x += ACCELERATION_X * time;
+				if (Speed.x > 0)
+				{
+					Speed.x = 0;
+				}
 			}
 		}
+		Way += abs(Speed.x) * time;
 	}
-	Way += abs(Speed.x) * time;
+	else
+	{
+		if (Timer.getElapsedTime().asSeconds() > PLAYER_DEAD_FLY_TIME)
+		{
+			Position = SpawnPoint;
+			canCollide = true;
+		}
+	}
 
 
 	if (Speed.x > MAX_PLAYER_SPEED_X)
