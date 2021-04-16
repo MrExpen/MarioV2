@@ -15,28 +15,39 @@ Mushroom::Mushroom(Vector2f position) : BaseEnemy(position, Vector2f(DEFAULTSPEE
 
 void Mushroom::UpdateX(float time)
 {
-	Way += abs(Speed.x) * time;
-	BaseEnemy::UpdateX(time);
-	if (Speed.x > 0)
+	if (isAlive)
 	{
-		if (this->Direction != Direction::Right)
+		if (!canCollide && !isKinematic && Timer.getElapsedTime().asSeconds() > MUSHROOM_DEAD_TIME)
 		{
-			Way = 0;
+			isAlive = false;
 		}
-		this->Direction = Direction::Right;
-	}
-	else if (Speed.x < 0)
-	{
-		if (this->Direction != Direction::Left)
+		Way += abs(Speed.x) * time;
+		BaseEnemy::UpdateX(time);
+		if (Speed.x > 0)
 		{
-			Way = 0;
+			if (this->Direction != Direction::Right)
+			{
+				Way = 0;
+			}
+			this->Direction = Direction::Right;
 		}
-		this->Direction = Direction::Left;
+		else if (Speed.x < 0)
+		{
+			if (this->Direction != Direction::Left)
+			{
+				Way = 0;
+			}
+			this->Direction = Direction::Left;
+		}
 	}
 }
 
 int Mushroom::GetTextureIndex()
 {
+	if (!canCollide && !isKinematic)
+	{
+		return 2;
+	}
 	return (int(Way) / WAY_TO_ACHIVE_MUSHROOM) % 2;
 }
 //FIXME

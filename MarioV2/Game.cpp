@@ -29,6 +29,11 @@ void Game::Update(float time)
 
 	for (auto enemy : Enemies)
 	{
+		if (!enemy->isAlive)
+		{
+			Enemies.erase(find(Enemies.begin(), Enemies.end(), enemy));
+			enemy->~Mushroom();
+		}
 		enemy->UpdateX(time);
 		for (auto wall : Walls)
 		{
@@ -127,8 +132,9 @@ void Game::Update(float time)
 				//TODO
 				break;
 			case GameAction::EnemyDie:
-				Enemies.erase(find(Enemies.begin(), Enemies.end(), enemy));
-				enemy->~BaseEnemy();
+				enemy->canCollide = false;
+				enemy->isKinematic = false;
+				enemy->Timer.restart();
 				break;
 			}
 		}
@@ -158,7 +164,7 @@ void Game::LoadLevel(string levelName)
 	Walls.clear();
 	for (auto enemy : Enemies)
 	{
-		enemy->~BaseEnemy();
+		enemy->~Mushroom();
 	}
 	Enemies.clear();
 

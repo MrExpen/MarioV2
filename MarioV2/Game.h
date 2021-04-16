@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "BaseEnemy.h"
 #include "GameState.h"
+#include "Mushroom.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 
@@ -14,7 +15,7 @@ class Game
 {
 public:
 	vector<Wall*> Walls;
-	vector<BaseEnemy*> Enemies;
+	vector<Mushroom*> Enemies;
 	Player Player;
 	string LevelName;
 	GameState State;
