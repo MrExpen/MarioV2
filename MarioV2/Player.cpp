@@ -68,6 +68,10 @@ void Player::UpdateX(float time)
 		}
 		this->Direction = Direction::Left;
 	}
+	else
+	{
+		Way = 0;
+	}
 }
 
 Drawable* Player::GetSprite()
@@ -84,10 +88,10 @@ Drawable* Player::GetSprite()
 
 int Player::GetTextureIndex()
 {
-	if (Speed.y != 0)
-		return 3;
 	if (!canCollide)
 		return 4;
+	if (Speed.y != 0)
+		return 3;
 	if (Speed.x == 0)
 	{
 		return 0;
