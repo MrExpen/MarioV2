@@ -88,7 +88,7 @@ void Player::UpdateX(float time)
 
 void Player::BuildSprite(Sprite& sprite)
 {
-	sprite.setTexture(*Textures[GetTextureIndex()]);
+	sprite.setTexture(*(*Textures)[GetTextureIndex()]);
 	if (this->Direction == Direction::Left)
 	{
 		sprite.setScale(-1, 1);
@@ -119,20 +119,14 @@ GameAction Player::TakeDamage()
 	return GameAction::PlayerTakeDamage;
 }
 //TODO: 32x32
-Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(24, 32), position, Vector2f(0, 0))
+Player::Player(Vector2f position, vector<Texture*>* Textures) : BaseEntity(true, true, Vector2f(24, 32), position, Vector2f(0, 0))
 {
 	this->Direction = Direction::Right;
 	this->HealthPoints = MAX_PLAYER_HP;
 	this->SpawnPoint = position;
 	this->Move = Move::None;
+	this->Textures = Textures;
 	Way = 0;
-
-	for (int i = 0; i < 5; i++)
-	{
-		Texture* texture = new Texture();
-		texture->loadFromFile("Images\\Mario.png", IntRect(i * 32, 0, 32, 32));
-		Textures.push_back(texture);
-	}
 	Timer = 0;
 }
 //TODO: 32x32

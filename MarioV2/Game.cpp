@@ -177,13 +177,13 @@ void Game::LoadLevel(string levelName)
 			switch (line[i])
 			{
 			case '#':
-				Walls.push_back(new Wall(Vector2f(32 * i, 32 * n), 0));
+				Walls.push_back(new Wall(Vector2f(32 * i, 32 * n), 0, WallsTextures));
 				break;
 			case '@':
-				Player = Player::Player(Vector2f(32 * i, 32 * n));
+				Player = Player::Player(Vector2f(32 * i, 32 * n), PlayerTextures);
 				break;
 			case '!':
-				Enemies.push_back(new Mushroom(Vector2f(32 * i, 32 * n)));
+				Enemies.push_back(new Mushroom(Vector2f(32 * i, 32 * n), MushroomTextures));
 				break;
 			}
 		}
@@ -196,4 +196,29 @@ void Game::LoadLevel(string levelName)
 Game::Game()
 {
 	State = GameState::GamePaused;
+
+	WallsTextures = new vector<Texture*>();
+	MushroomTextures = new vector<Texture*>();
+	PlayerTextures = new vector<Texture*>();
+
+	for (int i = 0; i < 3; i++)
+	{
+		Texture* texture = new Texture();
+		texture->loadFromFile("Images\\Mushroom.png", IntRect(i * 32, 0, 32, 32));
+		MushroomTextures->push_back(texture);
+	}
+
+	for (int i = 0; i < 7; i++)
+	{
+		Texture* texture = new Texture();
+		texture->loadFromFile("Images\\Walls.png", IntRect(i * 32, 0, 32, 32));
+		WallsTextures->push_back(texture);
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		Texture* texture = new Texture();
+		texture->loadFromFile("Images\\Mario.png", IntRect(i * 32, 0, 32, 32));
+		PlayerTextures->push_back(texture);
+	}
 }

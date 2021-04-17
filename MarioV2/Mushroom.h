@@ -10,7 +10,7 @@ class Mushroom :
     public BaseEnemy
 {
 public:
-	Mushroom(Vector2f position);
+	Mushroom(Vector2f position, vector<Texture*>* Textures);
 	float Way;
 	Direction Direction;
 	float Timer;

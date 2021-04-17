@@ -25,4 +25,9 @@ public:
 	void Draw(RenderWindow& window);
 	void LoadLevel(string levelName);
 	Game();
+
+private:
+	vector<Texture*>* WallsTextures;
+	vector<Texture*>* PlayerTextures;
+	vector<Texture*>* MushroomTextures;
 };

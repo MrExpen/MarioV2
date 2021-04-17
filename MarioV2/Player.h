@@ -29,6 +29,6 @@ public:
     virtual void BuildSprite(Sprite& sprite) override;
     virtual int GetTextureIndex() override;
     GameAction TakeDamage();
-    Player(Vector2f position);
+    Player(Vector2f position, vector<Texture*>* Textures);
     Player();
 };

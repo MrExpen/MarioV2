@@ -17,7 +17,7 @@ public:
 	Vector2f Size;
 	Vector2f Position;
 	Vector2f Speed;
-	vector<Texture*> Textures;
+	vector<Texture*>* Textures;
 	virtual void Draw(RenderWindow& window);
 	virtual void UpdateX(float time);
 	virtual void UpdateY(float time);

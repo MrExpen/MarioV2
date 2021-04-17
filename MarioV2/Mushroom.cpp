@@ -1,17 +1,12 @@
 #include "Mushroom.h"
 
-Mushroom::Mushroom(Vector2f position) : BaseEnemy(position, Vector2f(DEFAULTSPEEDX, 0))
+Mushroom::Mushroom(Vector2f position, vector<Texture*>* Textures) : BaseEnemy(position, Vector2f(DEFAULTSPEEDX, 0))
 {
 	Direction = Direction::Right;
 	Way = 0;
 	Timer = 0;
 
-	for (int i = 0; i < 3; i++)
-	{
-		Texture* texture = new Texture();
-		texture->loadFromFile("Images\\Mushroom.png", IntRect(i * 32, 0, 32, 32));
-		Textures.push_back(texture);
-	}
+	this->Textures = Textures;
 }
 
 void Mushroom::UpdateX(float time)
@@ -65,7 +60,7 @@ GameAction Mushroom::onPlayerEnter(Player& player)
 
 void Mushroom::BuildSprite(Sprite& sprite)
 {
-	sprite.setTexture(*Textures[GetTextureIndex()]);
+	sprite.setTexture(*(*Textures)[GetTextureIndex()]);
 	if (this->Direction == Direction::Left)
 	{
 		sprite.setScale(-1, 1);

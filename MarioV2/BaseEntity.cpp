@@ -49,6 +49,7 @@ void BaseEntity::BuildSprite(Sprite& sprite)
 	RectangleShape rectangleshape(Size);
 	rectangleshape.setFillColor(Color::Magenta);
 	sprite.setTexture(*rectangleshape.getTexture());
+	sprite.setPosition(Position);
 }
 
 BaseEntity::BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2f position, Vector2f speed)
@@ -58,4 +59,5 @@ BaseEntity::BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2
 	Size = size;
 	Position = position;
 	Speed = speed;
+	Textures = nullptr;
 }
