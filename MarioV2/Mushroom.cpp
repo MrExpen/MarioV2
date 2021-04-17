@@ -61,16 +61,15 @@ GameAction Mushroom::onPlayerEnter(Player& player)
 	return player.TakeDamage();
 }
 
-Drawable* Mushroom::GetSprite()
+void Mushroom::BuildSprite(Sprite& sprite)
 {
-	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
+	sprite.setTexture(*Textures[GetTextureIndex()]);
 	if (this->Direction == Direction::Left)
 	{
-		sprite->setScale(-1, 1);
-		sprite->setOrigin(Size.x, 0);
+		sprite.setScale(-1, 1);
+		sprite.setOrigin(Size.x, 0);
 	}
-	sprite->setPosition(Position);
-	return sprite;
+	sprite.setPosition(Position);
 }
 
 Mushroom::~Mushroom()

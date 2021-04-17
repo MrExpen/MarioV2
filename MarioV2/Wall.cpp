@@ -11,11 +11,10 @@ Wall::Wall(Vector2f position, int textureIndex) : BaseEntity(false, true, Vector
 	}
 }
 
-Drawable* Wall::GetSprite()
+void Wall::BuildSprite(Sprite& sprite)
 {
-	Sprite* sprite = new Sprite(*Textures[TextureIndex]);
-	sprite->setPosition(Position);
-	return sprite;
+	sprite.setTexture(*Textures[TextureIndex]);
+	sprite.setPosition(Position);
 }
 
 Wall::~Wall()

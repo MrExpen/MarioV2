@@ -17,7 +17,7 @@ public:
 	virtual void UpdateX(float time) override;
 	virtual int GetTextureIndex() override;
 	virtual GameAction onPlayerEnter(Player& player) override;
-	virtual Drawable* GetSprite() override;
+	virtual void BuildSprite(Sprite& sprite) override;
 	~Mushroom();
 };
 

@@ -5,9 +5,9 @@ using namespace sf;
 
 void BaseEntity::Draw(RenderWindow& window)
 {
-	auto tmp = GetSprite();
-	window.draw(*tmp);
-	tmp->~Drawable();
+	Sprite sprite;
+	BuildSprite(sprite);
+	window.draw(sprite);
 }
 
 bool BaseEntity::isIntersect(BaseEntity& entity)
@@ -44,17 +44,11 @@ int BaseEntity::GetTextureIndex()
 	return 0;
 }
 
-Drawable* BaseEntity::GetSprite()
+void BaseEntity::BuildSprite(Sprite& sprite)
 {
-	auto rectangleShape = new RectangleShape(Size);
-	rectangleShape->setFillColor(Color::Black);
-	rectangleShape->setPosition(Position);
-	return rectangleShape;
-
-	//TODO
-
-	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
-	return sprite;
+	RectangleShape rectangleshape(Size);
+	rectangleshape.setFillColor(Color::Magenta);
+	sprite.setTexture(*rectangleshape.getTexture());
 }
 
 BaseEntity::BaseEntity(bool iskinematic, bool cancollide, Vector2f size, Vector2f position, Vector2f speed)

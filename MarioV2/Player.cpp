@@ -85,16 +85,15 @@ void Player::UpdateX(float time)
 	}
 }
 
-Drawable* Player::GetSprite()
+void Player::BuildSprite(Sprite& sprite)
 {
-	Sprite* sprite = new Sprite(*Textures[GetTextureIndex()]);
+	sprite.setTexture(*Textures[GetTextureIndex()]);
 	if (this->Direction == Direction::Left)
 	{
-		sprite->setScale(-1, 1);
-		sprite->setOrigin(Size.x, 0);
+		sprite.setScale(-1, 1);
+		sprite.setOrigin(Size.x, 0);
 	}
-	sprite->setPosition(Position);
-	return sprite;
+	sprite.setPosition(Position);
 }
 
 int Player::GetTextureIndex()

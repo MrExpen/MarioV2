@@ -7,7 +7,7 @@ class Wall :
 public:
     Wall(Vector2f position, int textureIndex);
     int TextureIndex;
-    virtual Drawable* GetSprite() override;
+    virtual void BuildSprite(Sprite& sprite) override;
     ~Wall();
 };
 
