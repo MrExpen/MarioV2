@@ -18,6 +18,5 @@ public:
 	virtual int GetTextureIndex() override;
 	virtual GameAction onPlayerEnter(Player& player) override;
 	virtual void BuildSprite(Sprite& sprite) override;
-	~Mushroom();
 };
 

@@ -68,7 +68,3 @@ void Mushroom::BuildSprite(Sprite& sprite)
 	}
 	sprite.setPosition(Position);
 }
-
-Mushroom::~Mushroom()
-{
-}

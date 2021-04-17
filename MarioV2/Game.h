@@ -15,7 +15,7 @@ class Game
 {
 public:
 	vector<Wall*> Walls;
-	vector<Mushroom*> Enemies;
+	vector<Mushroom*> Mushrooms;
 	Player Player;
 	string LevelName;
 	GameState State;

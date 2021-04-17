@@ -31,7 +31,3 @@ void BaseEnemy::Draw(RenderWindow& window)
 	}
 }
 
-BaseEnemy::~BaseEnemy()
-{
-
-}

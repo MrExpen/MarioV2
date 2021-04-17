@@ -27,43 +27,44 @@ void Game::Update(float time)
 		}
 	}
 
-	for (auto enemy : Enemies)
+	for (auto mushroom : Mushrooms)
 	{
-		if (!enemy->isAlive)
+		if (!mushroom->isAlive)
 		{
-			Enemies.erase(find(Enemies.begin(), Enemies.end(), enemy));
-			enemy->~Mushroom();
+			Mushrooms.erase(find(Mushrooms.begin(), Mushrooms.end(), mushroom));
+			delete mushroom;
+			continue;
 		}
-		enemy->UpdateX(time);
+		mushroom->UpdateX(time);
 		for (auto wall : Walls)
 		{
-			if (enemy->isIntersect(*wall))
+			if (mushroom->isIntersect(*wall))
 			{
-				if (enemy->Speed.x > 0)
+				if (mushroom->Speed.x > 0)
 				{
-					enemy->Position.x = wall->Position.x - enemy->Size.x;
+					mushroom->Position.x = wall->Position.x - mushroom->Size.x;
 				}
-				else if (enemy->Speed.x < 0)
+				else if (mushroom->Speed.x < 0)
 				{
-					enemy->Position.x = wall->Position.x + wall->Size.x;
+					mushroom->Position.x = wall->Position.x + wall->Size.x;
 				}
 				else
 				{
 					throw exception();
 				}
-				enemy->Speed.x *= -1;
+				mushroom->Speed.x *= -1;
 			}
 		}
 	}
 
-	for (int i = 0; i < Enemies.size(); i++)
+	for (int i = 0; i < Mushrooms.size(); i++)
 	{
-		for (int j = i + 1; j < Enemies.size(); j++)
+		for (int j = i + 1; j < Mushrooms.size(); j++)
 		{
-			if (Enemies[i]->isIntersect(*Enemies[j]))
+			if (Mushrooms[i]->isIntersect(*Mushrooms[j]))
 			{
-				Enemies[i]->Speed.x *= -1;
-				Enemies[j]->Speed.x *= -1;
+				Mushrooms[i]->Speed.x *= -1;
+				Mushrooms[j]->Speed.x *= -1;
 			}
 		}
 	}
@@ -90,35 +91,35 @@ void Game::Update(float time)
 		}
 	}
 
-	for (auto enemy : Enemies)
+	for (auto mushroom : Mushrooms)
 	{
-		enemy->UpdateY(time);
+		mushroom->UpdateY(time);
 		for (auto wall : Walls)
 		{
-			if (enemy->isIntersect(*wall))
+			if (mushroom->isIntersect(*wall))
 			{
-				if (enemy->Speed.y > 0)
+				if (mushroom->Speed.y > 0)
 				{
-					enemy->Position.y = wall->Position.y + wall->Size.y;
+					mushroom->Position.y = wall->Position.y + wall->Size.y;
 				}
-				else if (enemy->Speed.y < 0)
+				else if (mushroom->Speed.y < 0)
 				{
-					enemy->Position.y = wall->Position.y - enemy->Size.y;
+					mushroom->Position.y = wall->Position.y - mushroom->Size.y;
 				}
 				else
 				{
 					throw exception();
 				}
-				enemy->Speed.y = 0;
+				mushroom->Speed.y = 0;
 			}
 		}
 	}
 
-	for (auto enemy : Enemies)
+	for (auto mushroom : Mushrooms)
 	{
-		if (enemy->isIntersect(Player))
+		if (mushroom->isIntersect(Player))
 		{
-			switch (enemy->onPlayerEnter(Player))
+			switch (mushroom->onPlayerEnter(Player))
 			{
 			case GameAction::PlayerTakeDamage:
 				Player.Speed.y = JUMP_KILL_SPEED;
@@ -132,9 +133,9 @@ void Game::Update(float time)
 				//TODO
 				break;
 			case GameAction::EnemyDie:
-				enemy->canCollide = false;
-				enemy->isKinematic = false;
-				enemy->Timer = 0;
+				mushroom->canCollide = false;
+				mushroom->isKinematic = false;
+				mushroom->Timer = 0;
 				break;
 			}
 		}
@@ -147,7 +148,7 @@ void Game::Draw(RenderWindow& window)
 	{
 		wall->Draw(window);
 	}
-	for (auto enemy : Enemies)
+	for (auto enemy : Mushrooms)
 	{
 		enemy->Draw(window);
 	}
@@ -159,14 +160,14 @@ void Game::LoadLevel(string levelName)
 	LevelName = levelName;
 	for (auto wall : Walls)
 	{
-		wall->~Wall();
+		delete wall;
 	}
 	Walls.clear();
-	for (auto enemy : Enemies)
+	for (auto mushroom : Mushrooms)
 	{
-		enemy->~Mushroom();
+		delete mushroom;
 	}
-	Enemies.clear();
+	Mushrooms.clear();
 
 	ifstream fin(levelName);
 	int n = 0;
@@ -183,7 +184,7 @@ void Game::LoadLevel(string levelName)
 				Player = Player::Player(Vector2f(32 * i, 32 * n), PlayerTextures);
 				break;
 			case '!':
-				Enemies.push_back(new Mushroom(Vector2f(32 * i, 32 * n), MushroomTextures));
+				Mushrooms.push_back(new Mushroom(Vector2f(32 * i, 32 * n), MushroomTextures));
 				break;
 			}
 		}

@@ -11,7 +11,3 @@ void Wall::BuildSprite(Sprite& sprite)
 	sprite.setTexture(*(*Textures)[TextureIndex]);
 	sprite.setPosition(Position);
 }
-
-Wall::~Wall()
-{
-}

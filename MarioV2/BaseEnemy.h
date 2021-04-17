@@ -14,5 +14,4 @@ public:
     virtual GameAction onPlayerEnter(Player& player);
     virtual void Die();
     virtual void Draw(RenderWindow& window) override;
-    ~BaseEnemy();
 };
