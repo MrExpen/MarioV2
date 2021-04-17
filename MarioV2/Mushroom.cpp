@@ -4,6 +4,7 @@ Mushroom::Mushroom(Vector2f position) : BaseEnemy(position, Vector2f(DEFAULTSPEE
 {
 	Direction = Direction::Right;
 	Way = 0;
+	Timer = 0;
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -15,9 +16,10 @@ Mushroom::Mushroom(Vector2f position) : BaseEnemy(position, Vector2f(DEFAULTSPEE
 
 void Mushroom::UpdateX(float time)
 {
+	Timer += time;
 	if (isAlive)
 	{
-		if (!canCollide && !isKinematic && Timer.getElapsedTime().asSeconds() > MUSHROOM_DEAD_TIME)
+		if (!canCollide && !isKinematic && Timer > MUSHROOM_DEAD_TIME)
 		{
 			isAlive = false;
 		}

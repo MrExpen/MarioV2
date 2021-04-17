@@ -123,7 +123,7 @@ void Game::Update(float time)
 			case GameAction::PlayerTakeDamage:
 				Player.Speed.y = JUMP_KILL_SPEED;
 				Player.canCollide = false;
-				Player.Timer.restart();
+				Player.Timer = 0;
 				break;
 			case GameAction::PlayerDie:
 				LoadLevel(LevelName);
@@ -134,7 +134,7 @@ void Game::Update(float time)
 			case GameAction::EnemyDie:
 				enemy->canCollide = false;
 				enemy->isKinematic = false;
-				enemy->Timer.restart();
+				enemy->Timer = 0;
 				break;
 			}
 		}

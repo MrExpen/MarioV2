@@ -12,7 +12,7 @@
 #define SPEED_X_ACCELERATION 0.5
 #define JUMP_KILL_SPEED 2
 #define WAY_TO_ACHIVE 30
-#define PLAYER_DEAD_FLY_TIME 2
+#define PLAYER_DEAD_FLY_TIME 200
 
 class Player :
     public BaseEntity
@@ -22,7 +22,7 @@ public:
     Vector2f SpawnPoint;
     Direction Direction;
     Move Move;
-    Clock Timer;
+    float Timer;
     float Way;
     void Jump();
     virtual void UpdateX(float time) override;

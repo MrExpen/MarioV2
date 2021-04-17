@@ -10,6 +10,7 @@ void Player::Jump()
 
 void Player::UpdateX(float time)
 {
+	Timer += time;
 	if (canCollide)
 	{
 		if (Move == Move::Right)
@@ -45,7 +46,7 @@ void Player::UpdateX(float time)
 	}
 	else
 	{
-		if (Timer.getElapsedTime().asSeconds() > PLAYER_DEAD_FLY_TIME)
+		if (Timer > PLAYER_DEAD_FLY_TIME)
 		{
 			Position = SpawnPoint;
 			canCollide = true;
@@ -132,6 +133,7 @@ Player::Player(Vector2f position) : BaseEntity(true, true, Vector2f(24, 32), pos
 		texture->loadFromFile("Images\\Mario.png", IntRect(i * 32, 0, 32, 32));
 		Textures.push_back(texture);
 	}
+	Timer = 0;
 }
 //TODO: 32x32
 Player::Player() : BaseEntity(true, true, Vector2f(24, 32), Vector2f(0, 0), Vector2f(0, 0))
@@ -141,4 +143,5 @@ Player::Player() : BaseEntity(true, true, Vector2f(24, 32), Vector2f(0, 0), Vect
 	this->SpawnPoint = Vector2f(0, 0);
 	this->Move = Move::None;
 	Way = 0;
+	Timer = 0;
 }

@@ -14,17 +14,22 @@ int main()
 {
     window.setVerticalSyncEnabled(true);
     Clock timeClock;
+    Clock newClock;
     Game game;
     game.LoadLevel("1lvl.txt");
 
+    double tmptime;
+
     while (window.isOpen())
     {
+        newClock.restart();
         Event event;
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed)
                 window.close();
         }
+        tmptime = newClock.getElapsedTime().asMicroseconds();
 
         if (game.State == GameState::GameOn)
         {
@@ -48,7 +53,7 @@ int main()
                 }
             }
 
-            game.Update(timeClock.getElapsedTime().asMicroseconds() / TIME_SCALE);
+            game.Update((timeClock.getElapsedTime().asMicroseconds() - tmptime) / TIME_SCALE);
         }
         timeClock.restart();
 
