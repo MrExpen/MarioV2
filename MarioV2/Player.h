@@ -13,6 +13,7 @@
 #define JUMP_KILL_SPEED 2
 #define WAY_TO_ACHIVE 30
 #define PLAYER_DEAD_FLY_TIME 200
+#define PLAYER_DEAD_JUMP_SPEED 3.3
 
 class Player :
     public BaseEntity

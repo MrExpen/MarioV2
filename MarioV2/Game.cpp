@@ -122,7 +122,7 @@ void Game::Update(float time)
 			switch (mushroom->onPlayerEnter(Player))
 			{
 			case GameAction::PlayerTakeDamage:
-				Player.Speed.y = JUMP_KILL_SPEED;
+				Player.Speed = Vector2f(0, PLAYER_DEAD_JUMP_SPEED);
 				Player.canCollide = false;
 				Player.Timer = 0;
 				break;
