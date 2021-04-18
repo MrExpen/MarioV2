@@ -6,7 +6,7 @@
 
 using namespace sf;
 
-RenderWindow window(VideoMode(W, H), "SFML works!");
+RenderWindow window(VideoMode(W, H), "Mario :)");
 
 int main()
 {
