@@ -7,6 +7,12 @@
 void Game::Update(float time)
 {
 	Player.UpdateX(time);
+
+	if (Player.Position == Player.SpawnPoint)
+	{
+		this->View.setCenter(Player.Position);
+	}
+
 	for (auto wall : Walls)
 	{
 		if (Player.isIntersect(*wall))
@@ -70,6 +76,16 @@ void Game::Update(float time)
 	}
 
 	Player.UpdateY(time);
+	auto a = Walls.end();
+	a--;
+	Wall lastwall = *(*a);
+	if (Player.Position.y - lastwall.Position.y > 64 && Player.canCollide)
+	{
+		Player.Speed = Vector2f(0, PLAYER_DEAD_JUMP_SPEED);
+		Player.canCollide = false;
+		Player.Timer = 0;
+	}
+
 	for (auto wall : Walls)
 	{
 		if (Player.isIntersect(*wall))
@@ -153,6 +169,23 @@ void Game::Draw(RenderWindow& window)
 		enemy->Draw(window);
 	}
 	this->Player.Draw(window);
+	if (Player.Direction == Direction::Right && (Player.Position.x - this->View.getCenter().x > 32 || this->View.getCenter().x - Player.Position.x < -128))
+	{
+		this->View.move(Vector2f((Player.Position.x - this->View.getCenter().x) / 32.0f, 0));
+	}
+	else if (Player.Direction == Direction::Left && (this->View.getCenter().x - Player.Position.x > 32 || Player.Position.x - this->View.getCenter().x < -128))
+	{
+		this->View.move(Vector2f((Player.Position.x - this->View.getCenter().x) / 32.0f, 0));
+	}
+	if (Player.Speed.y == 0 && abs(Player.Position.y - this->View.getCenter().y) > 32)
+	{
+		this->View.move(Vector2f(0, (Player.Position.y - this->View.getCenter().y) / 16.0f));
+	}
+	else if (abs(Player.Position.y - this->View.getCenter().y) > 256 && Player.canCollide)
+	{
+		this->View.move(Vector2f(0, (Player.Position.y - this->View.getCenter().y) / 16.0f));
+	}
+	window.setView(this->View);
 }
 
 void Game::LoadLevel(string levelName)
@@ -182,6 +215,8 @@ void Game::LoadLevel(string levelName)
 				break;
 			case '@':
 				Player = Player::Player(Vector2f(32 * i, 32 * n), PlayerTextures);
+				this->View.setCenter(Player.Position);
+				this->View.setSize(W, H);
 				break;
 			case '!':
 				Mushrooms.push_back(new Mushroom(Vector2f(32 * i, 32 * n), MushroomTextures));

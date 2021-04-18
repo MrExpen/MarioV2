@@ -8,6 +8,9 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+#define W 800
+#define H 600
+
 using namespace std;
 using namespace sf;
 
@@ -24,6 +27,7 @@ public:
 	void Update(float time);
 	void Draw(RenderWindow& window);
 	void LoadLevel(string levelName);
+	View View;
 	Game();
 
 private:

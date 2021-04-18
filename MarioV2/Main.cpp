@@ -2,8 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "Game.h"
 
-#define W 800
-#define H 600
 #define TIME_SCALE 8000.0f
 
 using namespace sf;
