@@ -177,14 +177,16 @@ void Game::Draw(RenderWindow& window)
 	{
 		this->View.move(Vector2f((Player.Position.x - this->View.getCenter().x) / 32.0f, 0));
 	}
+
 	if (Player.Speed.y == 0 && abs(Player.Position.y - this->View.getCenter().y) > 32)
 	{
-		this->View.move(Vector2f(0, (Player.Position.y - this->View.getCenter().y) / 16.0f));
+		Player.LastHight = Player.Position.y;
 	}
 	else if (abs(Player.Position.y - this->View.getCenter().y) > 256 && Player.canCollide)
 	{
-		this->View.move(Vector2f(0, (Player.Position.y - this->View.getCenter().y) / 16.0f));
+		Player.LastHight = Player.Position.y;
 	}
+	this->View.move(Vector2f(0, (Player.LastHight - this->View.getCenter().y) / 16.0f));
 	window.setView(this->View);
 }
 

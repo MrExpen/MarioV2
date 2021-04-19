@@ -128,6 +128,7 @@ Player::Player(Vector2f position, vector<Texture*>* Textures) : BaseEntity(true,
 	this->Textures = Textures;
 	Way = 0;
 	Timer = 0;
+	LastHight = SpawnPoint.y;
 }
 //TODO: 32x32
 Player::Player() : BaseEntity(true, true, Vector2f(24, 32), Vector2f(0, 0), Vector2f(0, 0))
@@ -138,4 +139,5 @@ Player::Player() : BaseEntity(true, true, Vector2f(24, 32), Vector2f(0, 0), Vect
 	this->Move = Move::None;
 	Way = 0;
 	Timer = 0;
+	LastHight = SpawnPoint.y;
 }

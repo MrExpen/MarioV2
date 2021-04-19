@@ -23,6 +23,7 @@ public:
     Vector2f SpawnPoint;
     Direction Direction;
     Move Move;
+    float LastHight;
     float Timer;
     float Way;
     void Jump();
